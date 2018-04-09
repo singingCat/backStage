@@ -7,6 +7,7 @@ import VueResource from 'vue-resource'
 import VueCountUp from 'vue-countupjs'
 import iView from 'iview'
 import 'iview/dist/styles/iview.css'
+require('animate.css/animate.min.css')
 
 Vue.use(VueResource)
 Vue.use(VueCountUp)
@@ -21,3 +22,12 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
+
+router.beforeEach((to, from, next) => {
+    iView.LoadingBar.start();
+    next();
+});
+
+router.afterEach(route => {
+    iView.LoadingBar.finish();
+});

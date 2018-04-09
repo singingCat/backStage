@@ -13,10 +13,15 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "animate.css": "^3.6.1",
     "iview": "^2.11.0",
+    "less": "^3.0.1",
+    "less-loader": "^4.1.0",
     "vue": "^2.5.2",
+    "vue-animate": "0.0.4",
     "vue-resource": "^1.5.0",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vue2-animate": "^1.0.4"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

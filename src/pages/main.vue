@@ -2,7 +2,7 @@
   	<div class="layout">
 	    <Layout :style="{minHeight: '100vh'}">
         	<Sider collapsible :collapsed-width="78" v-model="isCollapsed">
-	        	<Menu open-names="1" active-name="3-1" theme="dark" width="auto" :class="menuitemClasses" accordion>
+	        	<Menu :open-names="['1', '2']" active-name="3-1" theme="dark" width="auto" :class="menuitemClasses" accordion>
 		            <Submenu name="1">
 			            <template slot="title">
 			            	<Icon type="ios-paper"></Icon>
@@ -78,6 +78,11 @@
 	  },
 	  components: {
 	  	UserInfo
+	  },
+	  mounted () {
+	  	/*this.$router.push({
+	  		name: 'login'
+	  	})*/
 	  },
 	  computed: {
 			menuitemClasses: function () {
