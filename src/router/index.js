@@ -1,37 +1,41 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import login from '@/pages/login'
+/*import login from '@/pages/login'
 import main from '@/pages/main'
 import home from '@/components/home'
 import first from '@/components/first'
-import second from '@/components/second'
+import second from '@/components/second'*/
+import {routers} from './router'
 
 Vue.use(Router)
 
 export default new Router({
+		routes: routers
+})
+
+/*export default new Router({
   routes: [
     {
       path: '/',
       name: 'main',
+      meta: {
+        title: '首页'
+    	},
+      redirect: '/index',
       component: main,
       children: [
       	{
-      		path: '',
+      		path: '/index',
       		component: home
-      	},
-      	{
-      		path: '/first',
-      		component: first
-      	},
-      	{
-      		path: '/second',
-      		component: second
       	}
       ]
     },
     {
     	path: '/login',
     	name: 'login',
+    	meta: {
+        title: '登录'
+    	},
     	component: login
     },
     {
@@ -59,4 +63,4 @@ export default new Router({
 	    component: resolve => { require(['@/pages/error-page/404.vue'], resolve); }
     }
   ]
-})
+})*/

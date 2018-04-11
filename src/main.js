@@ -3,9 +3,9 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import iView from 'iview'
 import VueResource from 'vue-resource'
 import VueCountUp from 'vue-countupjs'
-import iView from 'iview'
 import 'iview/dist/styles/iview.css'
 require('animate.css/animate.min.css')
 
