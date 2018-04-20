@@ -50,13 +50,13 @@ export const appRouter = [
 		]
 	},
 	{
-		path: 'group1',
-	    name: 'group1',
-	    title: '组一',
+		path: '/coin',
+	    name: 'coin',
+	    title: '数币管理',
 	    component: Main,
 	    children: [
-	        { path: '/first', title: '子组件一', name: 'first_index', component: () => import('@/components/first.vue') },
-	        { path: '/second', title: '子组件二', name: 'second_index', component: () => import('@/components/second.vue') }
+	        { path: 'coinList', title: '数币信息', name: 'coinList', component: () => import('@/components/coinList.vue') },
+	        { path: 'coinAdd', title: '新增数币', name: 'coinAdd', component: () => import('@/components/CoinAdd.vue') }
 	    ]
    	}
 ]

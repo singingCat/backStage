@@ -1,5 +1,5 @@
 <template>
-	<p>222222222222</p>
+	<p>基本信息页</p>
 </template>
 
 <script>

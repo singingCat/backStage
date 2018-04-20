@@ -6,15 +6,27 @@
 		            <Submenu name="1">
 			            <template slot="title">
 			            	<Icon type="ios-paper"></Icon>
-			            	<span>组一</span>
+			            	<span>数币管理</span>
 			            </template>
-			            <Menu-item name="1-1">
+			            <Menu-item name="coinList">
 			            	<Icon type="ios-paper"></Icon>
-			            	<span>first</span>
+			            	<span>数币信息</span>
 			            </Menu-item>
-			            <MenuItem name="1-2">
+			            <MenuItem name="comment">
 			            	<Icon type="ios-paper"></Icon>
-			            	<span>second</span>
+			            	<span>评论管理</span>
+			            </MenuItem>
+			            <MenuItem name="team">
+			            	<Icon type="ios-paper"></Icon>
+			            	<span>团队管理</span>
+			            </MenuItem>
+			            <MenuItem name="publicOffering">
+			            	<Icon type="ios-paper"></Icon>
+			            	<span>公募信息</span>
+			            </MenuItem>
+			            <MenuItem name="airDrop">
+			            	<Icon type="ios-paper"></Icon>
+			            	<span>空投信息</span>
 			            </MenuItem>
 		            </Submenu>
 		            <!--<Submenu name="2">
@@ -61,12 +73,10 @@
 		        </Header>
 		        <Content :style="{padding: '0 16px 16px'}">
 		        <Breadcrumb :style="{margin: '16px 0'}">
-		            <Breadcrumb-item to="">Home</Breadcrumb-item>
-		            <Breadcrumb-item to="">first</Breadcrumb-item>
-		            <!--<Breadcrumb-item>second</Breadcrumb-item>-->
+		            <Breadcrumb-item to="/home">首页</Breadcrumb-item>
 		        </Breadcrumb>
 		        <Card>
-		            <div style="height: 600px">
+		            <div style="min-height: calc( 100vh - 170px )">
 						<router-view/>
 		            </div>
 		        </Card>
@@ -88,8 +98,7 @@
 	  		}
 	  	},
 	  	created () {
-	  		this.getRouterList();
-	  		console.log(this.routerList);
+	  		
 	  	},
 	  	mounted () {
 	  		
@@ -99,10 +108,7 @@
 	  	},
 	  	methods: {
   			onChange (name) {
-  				console.log(name)
-  			},
-  			getRouterList () {
-  				this.routerList = this.$route.matched;
+  				this.$router.push({name: name})
   			}
 	  	},
 	  	computed: {
@@ -115,7 +121,7 @@
 		},
 		watch: {
 			$route () {
-				this.getRouterList()
+				
 			}
 		}
 	}
