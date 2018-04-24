@@ -1,4 +1,4 @@
-import Main from '@/pages/main'
+import Main from '@/pages/Main'
 
 //登录
 export const loginRouter = {
@@ -7,7 +7,7 @@ export const loginRouter = {
     meta: {
         title: '登录'
     },
-    component: resolve => { require(['@/pages/login.vue'], resolve); }
+    component: resolve => { require(['@/pages/Login.vue'], resolve); }
 };
 
 export const page404 = {
@@ -46,19 +46,34 @@ export const appRouter = [
 		redirect: 'home',
 		component: Main,
 		children: [
-			{ path: 'home', title: '工作台', name: 'home', component: () => import('@/components/home.vue') }
+			{ path: 'home', title: '工作台', name: 'home', component: () => import('@/pages/Home.vue') }
 		]
 	},
 	{
 		path: '/coin',
 	    name: 'coin',
 	    title: '数币管理',
+	    redirect: 'coinList',
 	    component: Main,
 	    children: [
-	        { path: 'coinList', title: '数币信息', name: 'coinList', component: () => import('@/components/coinList.vue') },
-	        { path: 'coinAdd', title: '新增数币', name: 'coinAdd', component: () => import('@/components/CoinAdd.vue') }
+	        { path: 'coinList', title: '数币信息', name: 'coinList', component: () => import('@/pages/CoinList.vue') },
+	        { path: 'coinAdd', title: '新增数币', name: 'coinAdd', component: () => import('@/pages/CoinEdit.vue') },
+	        { path: 'coinEdit/:id', title: '数币编辑', name: 'coinEdit', component: () => import('@/pages/CoinEdit.vue') },
+	        { path: 'commentList', title: '评论列表', name: 'commentList', component: () => import('@/pages/CommentList.vue') }
 	    ]
-   	}
+   },
+   {
+   		path: '/user',
+   		name: 'user',
+   		title: '用户管理',
+   		redirect: 'userList',
+   		component: Main,
+   		children: [
+   			{ path: 'userList', title: '基本信息', name: 'userList', component: () => import('@/pages/UserList.vue') },
+   			{ path: 'userAdd', title: '新增用户', name: 'userAdd', component: () => import('@/pages/UserEdit.vue') },
+   			{ path: 'UserEdit/:id', title: '基本信息', name: 'userEdit', component: () => import('@/pages/UserEdit.vue') }
+   		]
+   }
 ]
 
 // 所有上面定义的路由都要写在下面的routers里

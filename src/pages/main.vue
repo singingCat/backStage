@@ -2,69 +2,55 @@
   	<div class="layout">
 	    <Layout :style="{minHeight: '100vh'}">
         	<Sider collapsible :collapsed-width="78" v-model="isCollapsed">
-	        	<Menu :open-names="['1']" active-name="" theme="dark" width="auto" :class="menuitemClasses" accordion @on-select="onChange">
+	        	<Menu :open-names="['1', '2']" :active-name="currentMenu" theme="dark" width="auto" :class="menuitemClasses" @on-select="onChange">
 		            <Submenu name="1">
 			            <template slot="title">
-			            	<Icon type="ios-paper"></Icon>
+			            	<Icon type="social-bitcoin"></Icon>
 			            	<span>数币管理</span>
 			            </template>
-			            <Menu-item name="coinList">
-			            	<Icon type="ios-paper"></Icon>
+			            <MenuItem name="coinList">
+			            	<Icon type="information-circled"></Icon>
 			            	<span>数币信息</span>
-			            </Menu-item>
-			            <MenuItem name="comment">
-			            	<Icon type="ios-paper"></Icon>
+			            </MenuItem>
+			            <!--<MenuItem name="comment">
+			            	<Icon type="chatbubbles"></Icon>
 			            	<span>评论管理</span>
 			            </MenuItem>
 			            <MenuItem name="team">
-			            	<Icon type="ios-paper"></Icon>
+			            	<Icon type="ios-people"></Icon>
 			            	<span>团队管理</span>
 			            </MenuItem>
 			            <MenuItem name="publicOffering">
-			            	<Icon type="ios-paper"></Icon>
+			            	<Icon type="social-yen"></Icon>
 			            	<span>公募信息</span>
 			            </MenuItem>
 			            <MenuItem name="airDrop">
-			            	<Icon type="ios-paper"></Icon>
+			            	<Icon type="plane"></Icon>
 			            	<span>空投信息</span>
+			            </MenuItem>-->
+		            </Submenu>
+		            <Submenu name="2">
+			            <template slot="title">
+			            	<Icon type="person"></Icon>
+			            	<span>用户管理</span>
+			            </template>
+			            <MenuItem name="userList">
+			            	<Icon type="happy"></Icon>
+			            	<span>基本信息</span>
+			            </MenuItem>
+			            <MenuItem name="purseManagement">
+			            	<Icon type="social-yen"></Icon>
+			            	<span>钱包管理</span>
+			            </MenuItem>
+			            <MenuItem name="systemPush">
+			            	<Icon type="ios-paperplane"></Icon>
+			            	<span>系统推送</span>
+			            </MenuItem>
+			            <MenuItem name="userAuthentication">
+			            	<Icon type="ios-body"></Icon>
+			            	<span>用户认证</span>
 			            </MenuItem>
 		            </Submenu>
-		            <!--<Submenu name="2">
-			            <template slot="title">
-			            	<Icon type="ios-paper"></Icon>
-			            	<span>内容管理</span>
-			            </template>
-			            <Menu-item name="2-1">
-			            	<Icon type="ios-paper"></Icon>
-			            	<span>文章管理</span>
-			            </Menu-item>
-			            <MenuItem name="2-2">
-			            	<Icon type="ios-paper"></Icon>
-			            	<span>评论管理</span>
-			            </MenuItem>
-			            <MenuItem name="2-3">
-			            	<Icon type="ios-paper"></Icon>
-			            	<span>举报管理</span>
-			            </MenuItem>
-	            	</Submenu>-->
-		            <!--<MenuItem name="3-1">
-			            <Icon type="ios-navigate"></Icon>
-			            <span>Option 1</span>
-		            </MenuItem>-->
-		            <!--<template v-for="item in routerList">
-		            	<Submenu v-if="item.children.length > 1" :name="item.name" :key="item.name">
-		            		<template slot="title">
-			                    <Icon :type="ios-paper"></Icon>
-			                    <span class="layout-text">{{ item.title }}</span>
-			                </template>
-			                <template v-for="child in item.children">
-			                    <MenuItem :name="child.name" :key="'menuitem' + child.name">
-			                        <Icon :type="ios-paper" :key="'icon' + child.name"></Icon>
-			                        <span :key="'title' + child.name">{{ child.title }}</span>
-			                    </MenuItem>
-			                </template>
-		            	</Submenu>
-		            </template>-->
 	        	</Menu>
         	</Sider>
 		    <Layout>
@@ -76,7 +62,7 @@
 		            <Breadcrumb-item to="/home">首页</Breadcrumb-item>
 		        </Breadcrumb>
 		        <Card>
-		            <div style="min-height: calc( 100vh - 170px )">
+		            <div style="min-height: calc( 100vh - 200px )">
 						<router-view/>
 		            </div>
 		        </Card>
@@ -87,18 +73,20 @@
 </template>
 
 <script>
-	import UserInfo from '../components/userInfo'
+	import UserInfo from '../components/UserInfo'
+	
+	let _ = require('lodash')
 	
 	export default {
 	  	name: 'App',
   		data () {
 	  		return {
 	  			isCollapsed: false,
-	  			routerList: ''	//路由集合
+	  			currentMenu: ''
 	  		}
 	  	},
 	  	created () {
-	  		
+	  		this.linkage();
 	  	},
 	  	mounted () {
 	  		
@@ -109,6 +97,12 @@
 	  	methods: {
   			onChange (name) {
   				this.$router.push({name: name})
+  			},
+  			linkage () {		//菜单联动,后期需要调整下
+  				let route = this.$route.path;
+				let index = route.lastIndexOf('/') + 1;
+				let currentMenu = route.slice(index);
+				this.currentMenu = currentMenu;
   			}
 	  	},
 	  	computed: {
@@ -121,7 +115,7 @@
 		},
 		watch: {
 			$route () {
-				
+				this.linkage();
 			}
 		}
 	}

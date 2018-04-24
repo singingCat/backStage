@@ -1,54 +1,15 @@
 <template>
 	<div>
 		<Form :model="formItem" :label-width="100">
-			<FormItem label="数币基本描述:">
-	            <Input v-model="formItem.describtion" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入数币的基本描述"></Input>
+	        <FormItem label="用户姓名:">
+	            <Input v-model="formItem.name" placeholder="请输入用户姓名"></Input>
 	        </FormItem>
-	        <FormItem label="公募时间:">
-                <DatePicker type="date" placeholder="公募开始时间" v-model="formItem.publicOfferingStart"></DatePicker>
-				<span> - </span>
-           		<DatePicker type="date" placeholder="公募结束时间" v-model="formItem.publicOfferingEnd"></DatePicker>
-	        </FormItem>
-	        <FormItem label="上线交易所时间:">
-	            <DatePicker type="date" placeholder="上线交易所时间" v-model="formItem.tradeTime"></DatePicker>
-	        </FormItem>
-	        <FormItem label="所在国家:">
-	            <Input v-model="formItem.country" placeholder="请输入所在国家"></Input>
-	        </FormItem>
-	        <FormItem label="官方网站:">
-	            <Input v-model="formItem.website" placeholder="请输入官方网站"></Input>
-	        </FormItem>
-	        <FormItem label="白皮书:">
-	            <Input v-model="formItem.whitePapper" placeholder="请输入白皮书"></Input>
-	        </FormItem>
-	        <FormItem label="区块站:">
-	            <Input v-model="formItem.blockStation" placeholder="请输入区块站"></Input>
-	        </FormItem>
-	        <FormItem label="电报群:">
-	            <Input v-model="formItem.telegraphGroup" placeholder="请输入电报群"></Input>
-	        </FormItem>
-	        <FormItem label="电报人数:">
-	            <Input v-model="formItem.telegraphNumber" placeholder="请输入电报人数"></Input>
-	        </FormItem>
-	        <FormItem label="twitter地址:">
-	            <Input v-model="formItem.twitterAddress" placeholder="请输入twitter地址"></Input>
-	        </FormItem>
-	        <FormItem label="twitter粉丝数:">
-	            <Input v-model="formItem.twitterFans" placeholder="请输入twitter粉丝数"></Input>
-	        </FormItem>
-	        <FormItem label="微信公众号:">
-	            <Input v-model="formItem.WeChatPublicNumber" placeholder="请输入微信公众号"></Input>
-	        </FormItem>
-	        <FormItem label="微信小程序:">
-	            <Input v-model="formItem.WeChatSmallProgram" placeholder="请输入微信小程序"></Input>
-	        </FormItem>
-	        <FormItem label="logo:">
+	        <FormItem label="用户头像:">
 	        	<div class="demo-upload-list" v-for="item in uploadList">
 			        <template v-if="item.status === 'finished'">
 			            <img :src="item.url">
 			            <div class="demo-upload-list-cover">
 			                <Icon type="ios-eye-outline" @click.native="handleView(item.name)"></Icon>
-			                <Icon type="ios-trash-outline" @click.native="handleRemove(item)"></Icon>
 			            </div>
 			        </template>
 			        <template v-else>
@@ -77,10 +38,59 @@
 			        <img :src="'https://o5wwk8baw.qnssl.com/' + imgName + '/large'" v-if="visible" style="width: 100%">
 			    </Modal>
 	        </FormItem>
-	        <FormItem>
-	            <Button type="primary" @click="">确定</Button>
-	            <Button type="ghost" @click="" style="margin-left: 8px">重置</Button>
+	        <FormItem label="性别:">
+	            <RadioGroup v-model="formItem.sex">
+	                <Radio label="男">男</Radio>
+	                <Radio label="女">女</Radio>
+	            </RadioGroup>
 	        </FormItem>
+	        <FormItem label="用户简介:">
+	            <Input v-model="formItem.userSummary" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入用户简介"></Input>
+	        </FormItem>
+	        <FormItem label="手机号:">
+	            <Input v-model="formItem.phoneNumber" placeholder="请输入手机号"></Input>
+	        </FormItem>
+	        <FormItem label="邮箱:">
+	            <Input v-model="formItem.email" placeholder="请输入邮箱"></Input>
+	        </FormItem>
+	        <FormItem label="生日:">
+	            <DatePicker type="date" placeholder="请输入生日" v-model="formItem.birthday"></DatePicker>
+	        </FormItem>
+	        <FormItem label="INB数量:">
+	            <Input v-model="formItem.inbNumber" placeholder="请输入INB数量"></Input>
+	        </FormItem>
+	        <FormItem label="钱包地址:">
+	            <Input v-model="formItem.purseAddress" placeholder="请输入钱包地址"></Input>
+	        </FormItem>
+	        <FormItem label="注册时间:">
+	            <DatePicker type="date" placeholder="请输入注册时间" v-model="formItem.signUpTime"></DatePicker>
+	        </FormItem>
+	        <FormItem label="国家:">
+	            <Input v-model="formItem.country" placeholder="请输入国家"></Input>
+	        </FormItem>
+	        <FormItem label="来源:">
+	            <Select v-model="formItem.origin">
+					<Option value="test1">手机号</Option>
+					<Option value="test2">邮箱</Option>
+					<Option value="test3">微博</Option>
+					<Option value="test3">微信</Option>
+				</Select>
+	        </FormItem>
+	        <FormItem label="认证种类:">
+	            <Select v-model="formItem.authType">
+					<Option value="test1">无</Option>
+					<Option value="test2">企业认证</Option>
+					<Option value="test3">分析师认证</Option>
+				</Select>
+	        </FormItem>
+	        <FormItem label="限制行为:">
+	            <Select v-model="formItem.limitBehavior">
+					<Option value="test1">无</Option>
+					<Option value="test2">拉黑</Option>
+					<Option value="test3">不许评论</Option>
+				</Select>
+	        </FormItem>
+	        
 		</Form>
 	</div>
 </template>
@@ -90,35 +100,32 @@
 		data () {
 			return {
 				formItem: {
-					describtion: '',			//数币基本描述
-					imageUrl: '',				//logo
-					publicOfferingStart: '',	//公募开始时间
-					publicOfferingEnd: '',		//公募结束时间
-					tradeTime: '',				//上线交易所时间
-					country: '',				//所在国家
-					website: '',				//官方网站
-					whitePapper: '',			//白皮书
-					blockStation: '',			//区块站
-					telegraphGroup: '',			//电报群
-					telegraphNumber: '',		//电报人数
-					twitterAddress: '',			//twitter地址
-					twitterFans: '',			//twitter粉丝数
-					WeChatPublicNumber: '',		//微信公众号
-					WeChatSmallProgram: ''		//微信小程序
+					name: '',			//姓名
+					avatar: '',			//头像
+					sex: '',			//性别
+					userSummary: '',	//用户简介
+					phoneNumber: '',	//手机号
+					email: '',			//邮箱
+					birthday: '',		//生日
+					inbNumber: '',		//INB数量
+					purseAddress: '',	//钱包地址
+					signUpTime: '',		//注册时间
+					country: '',		//国家
+					origin: '',			//来源
+					authType: '',		//认证种类
+					limitBehavior: ''	//限制行为
 				},
-				defaultList: [
-	                {
-	                    'name': 'a42bdcc1178e62b4694c830f028db5c0',
-	                    'url': 'https://o5wwk8baw.qnssl.com/a42bdcc1178e62b4694c830f028db5c0/avatar'
-	                }
-	            ],
-	            imgName: '',
+				defaultList: [{
+					'name': 'a42bdcc1178e62b4694c830f028db5c0',
+                    'url': 'https://o5wwk8baw.qnssl.com/a42bdcc1178e62b4694c830f028db5c0/avatar'
+				}],
+				imgName: '',
 	            visible: false,
-	            uploadList: []
+				uploadList: []
 			}
 		},
 		methods: {
-            handleView (name) {
+			handleView (name) {
                 this.imgName = name;
                 this.visible = true;
             },
@@ -151,8 +158,8 @@
                 }
                 return check;
             }
-        },
-        mounted () {
+		},
+		mounted () {
             this.uploadList = this.$refs.upload.fileList;
         }
 	}

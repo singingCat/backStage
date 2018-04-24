@@ -4,7 +4,7 @@
 		<div class="userInfo">
 		    <Dropdown class="dropDown" placement="bottom-end">
 		        <a href="javascript:void(0)">
-		            iview_admin
+		        	微愿管理员
 		            <Icon type="arrow-down-b"></Icon>
 		        </a>
 		        <DropdownMenu slot="list">
