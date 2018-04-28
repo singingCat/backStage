@@ -6,6 +6,7 @@ import router from './router'
 import iView from 'iview'
 import VueResource from 'vue-resource'
 import VueCountUp from 'vue-countupjs'
+import axios from 'axios'
 import 'iview/dist/styles/iview.css'
 require('animate.css/animate.min.css')
 
@@ -13,6 +14,7 @@ Vue.use(VueResource)
 Vue.use(VueCountUp)
 Vue.use(iView)
 
+Vue.prototype.$axios = axios
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

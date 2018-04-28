@@ -76,6 +76,13 @@
 					<Option value="test3">微信</Option>
 				</Select>
 	        </FormItem>
+	        <FormItem label="限制行为:">
+	            <Select v-model="formItem.limitBehavior">
+					<Option value="test1">无</Option>
+					<Option value="test2">拉黑</Option>
+					<Option value="test3">禁止评论</Option>
+				</Select>
+	        </FormItem>
 	        <FormItem label="认证种类:">
 	            <Select v-model="formItem.authType">
 					<Option value="test1">无</Option>
@@ -83,14 +90,27 @@
 					<Option value="test3">分析师认证</Option>
 				</Select>
 	        </FormItem>
-	        <FormItem label="限制行为:">
-	            <Select v-model="formItem.limitBehavior">
-					<Option value="test1">无</Option>
-					<Option value="test2">拉黑</Option>
-					<Option value="test3">不许评论</Option>
+	        <FormItem label="分析师等级:" v-if="formItem.authType == 'test3'">
+	            <Select v-model="formItem.level">
+					<Option value="test1">一级</Option>
+					<Option value="test2">二级</Option>
+					<Option value="test3">三级</Option>
 				</Select>
 	        </FormItem>
-	        
+	        <FormItem label="分析师星级:" v-if="formItem.authType == 'test3'">
+	            <Select v-model="formItem.star">
+					<Option value="test1">一星</Option>
+					<Option value="test2">二星</Option>
+					<Option value="test3">三星</Option>
+				</Select>
+	        </FormItem>
+	        <FormItem label="可接受报告语言:" v-if="formItem.authType == 'test2' || formItem.authType == 'test3'">
+	            <Input v-model="formItem.acceptableLanguage" placeholder="请输入可接受报告语言"></Input>
+	        </FormItem>
+	        <FormItem>
+	            <Button type="primary" @click="">确定</Button>
+	            <Button type="ghost" @click="" style="margin-left: 8px">重置</Button>
+	        </FormItem>
 		</Form>
 	</div>
 </template>
@@ -113,7 +133,10 @@
 					country: '',		//国家
 					origin: '',			//来源
 					authType: '',		//认证种类
-					limitBehavior: ''	//限制行为
+					limitBehavior: '',	//限制行为
+					level: '',			//分析师等级
+					star: '',			//分析师星级
+					acceptableLanguage: ''	//可接受报告语言
 				},
 				defaultList: [{
 					'name': 'a42bdcc1178e62b4694c830f028db5c0',

@@ -53,7 +53,7 @@ export const appRouter = [
 		path: '/coin',
 	    name: 'coin',
 	    title: '数币管理',
-	    redirect: 'coinList',
+	    redirect: '/coin/coinList',
 	    component: Main,
 	    children: [
 	        { path: 'coinList', title: '数币信息', name: 'coinList', component: () => import('@/pages/CoinList.vue') },
@@ -61,19 +61,43 @@ export const appRouter = [
 	        { path: 'coinEdit/:id', title: '数币编辑', name: 'coinEdit', component: () => import('@/pages/CoinEdit.vue') },
 	        { path: 'commentList', title: '评论列表', name: 'commentList', component: () => import('@/pages/CommentList.vue') }
 	    ]
-   },
-   {
+   	},
+   	{
    		path: '/user',
    		name: 'user',
    		title: '用户管理',
-   		redirect: 'userList',
+   		redirect: '/user/userList',
    		component: Main,
    		children: [
    			{ path: 'userList', title: '基本信息', name: 'userList', component: () => import('@/pages/UserList.vue') },
    			{ path: 'userAdd', title: '新增用户', name: 'userAdd', component: () => import('@/pages/UserEdit.vue') },
    			{ path: 'UserEdit/:id', title: '基本信息', name: 'userEdit', component: () => import('@/pages/UserEdit.vue') }
    		]
-   }
+   	},
+   	{
+   		path: '/investigation',
+   		name: 'investigation',
+   		title: '调研',
+   		redirect: '/investigation/requestList',
+   		component: Main,
+   		children: [
+   			{ path: 'requestList', title: '请求列表', name: 'requestList', component: () => import('@/pages/InvestigationRequestList.vue') },
+   			{ path: 'orderTakingList/:id', title: '接单列表', name: 'orderTakingList', component: () => import('@/pages/OrderTakingList.vue') }
+   		]
+   	},
+   	{
+   		path: '/purse',
+   		name: 'purse',
+   		title: '钱包管理',
+   		redirect: '/purse/userPurseList',
+   		component: Main,
+   		children: [
+   			{ path: 'userPurseList', title: '用户钱包', name: 'userPurseList', component: () => import('@/pages/UserPurseList.vue') },
+   			{ path: 'userPurseEdit/:uuid', title: '钱包编辑', name: 'userPurseEdit', component: () => import('@/pages/UserPurseEdit.vue') },
+   			{ path: 'tradeRecordList/:uuid', title: '交易记录列表', name: 'tradeRecordList', component: () => import('@/pages/TradeRecordList.vue') },
+   			{ path: 'TradeRecordEdit/:uuid', title: '交易记录编辑', name: 'TradeRecordEdit', component: () => import('@/pages/TradeRecordEdit.vue') },
+   		]
+   	}
 ]
 
 // 所有上面定义的路由都要写在下面的routers里

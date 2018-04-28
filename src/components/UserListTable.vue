@@ -1,5 +1,10 @@
 <template>
-	<Table border :columns="columns" :data="data"></Table>
+	<div>
+		<Table border :columns="columns" :data="data"></Table>
+		<div class="page">
+			<Page :total="100" :current="1" show-total @on-change="changePage"></Page>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -25,9 +30,13 @@
                         key: 'identity'
                     },
                     {
+                        title: '身份类型',
+                        key: 'identityType'
+                    },
+                    {
                     	title: '操作',
                     	key: 'action',
-                    	width: 200,
+                    	width: 220,
                     	align: 'center',
                     	render: (h, params) => {
                     		return h('div', [
@@ -45,6 +54,20 @@
                                         }
                                     }
                                 }, '查看'),
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.recharge(params.index);
+                                        }
+                                    }
+                                }, '充值'),
                                 h('Button', {
                                     props: {
                                         type: 'info',
@@ -76,28 +99,32 @@
                 ],
                 data: [
                     {
-                    	id: 'id1',
+                    	id: '111',
                         name: 'name1',
                         createTime: '2018-01-01',
-                        identity: '运营人员'
+                        identity: '运营人员',
+                        identityType: '无'
                     },
                     {
-                    	id: 'id2',
+                    	id: '222',
                         name: 'name2',
                         createTime: '2018-01-01',
-                        identity: '普通用户'
+                        identity: '普通用户',
+                        identityType: '分析师'
                     },
                     {
-                    	id: 'id3',
+                    	id: '333',
                         name: 'name3',
                         createTime: '2018-01-01',
-                        identity: '运营人员'
+                        identity: '运营人员',
+                        identityType: '企业用户'
                     },
                     {
-                    	id: 'id4',
+                    	id: '444',
                         name: 'name4',
                         createTime: '2018-01-01',
-                        identity: '普通用户'
+                        identity: '普通用户',
+                        identityType: '分析师'
                     }
                 ]
 			}
@@ -107,7 +134,7 @@
 			show (index) {
                 this.$Modal.success({
                     title: `${this.data[index].name}的主要信息`,
-                    content: `用户名：${this.data[index].name}<br>创建时间：${this.data[index].createTime}<br>身份：${this.data[index].identity}`
+                    content: `用户名：${this.data[index].name}<br>创建时间：${this.data[index].createTime}<br>身份：${this.data[index].identity}<br>身份类型：${this.data[index].identityType}`
                 })
             },
             /*编辑*/
@@ -122,10 +149,57 @@
                     	this.data.splice(index, 1);
                     }
                 });
-            }
+            },
+            /*分页*/
+           	changePage (index) {
+           		console.log(index);
+           	},
+           	/*充值*/
+           	recharge (index) {
+           		let inputVal = '';
+           		this.$Modal.confirm({
+                    render: (h) => {
+                    	return h('div', [
+                    		h('P', {
+                    			style: {
+                    				marginBottom: '10px'
+                    			}
+                    		}, '新增INB数量'),
+                    		h('Input', {
+                    			props: {
+	                                value: this.data[index].name
+	                            },
+	                            on: {
+	                                input: (val) => {
+	                                    inputVal = val;
+	                                }
+	                            }
+                    		}),
+                    		h('P', {
+                    			style: {
+                    				marginBottom: '10px',
+                    				marginTop: '10px'
+                    			}
+                    		}, 'ETH交易单号'),
+                    		h('Input', {
+                    			props: {
+	                                
+                            	}
+                    		})
+                    	])
+                    },
+                    onOk: () => {
+                    	console.log(inputVal);
+                    }
+                });
+           	}
 		}
 	}
 </script>
 
-<style>
+<style scoped>
+	.page {
+		float: right;
+		margin-top: 20px;
+	}
 </style>

@@ -132,25 +132,25 @@
                 ],
                 data: [
                     {
-                    	id: 'id1',
+                    	id: 111,
                         name: 'BTC',
                         price: 18,
                         type: '币市'
                     },
                     {
-                    	id: 'id2',
+                    	id: 222,
                         name: 'ETH',
                         price: 24,
                         type: '公募'
                     },
                     {
-                    	id: 'id3',
+                    	id: 333,
                         name: 'BTC',
                         price: 30,
                         type: '空投'
                     },
                     {
-                    	id: 'id4',
+                    	id: 444,
                         name: 'ETH',
                         price: 26,
                         type: '空投'

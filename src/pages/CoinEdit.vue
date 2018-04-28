@@ -153,7 +153,7 @@
             }
         },
         mounted () {
-        	console.log(this.$route.params.id);
+        	/*console.log(this.$route.params.id);*/
             this.uploadList = this.$refs.upload.fileList;
         }
 	}
