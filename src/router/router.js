@@ -46,7 +46,7 @@ export const appRouter = [
 		redirect: 'home',
 		component: Main,
 		children: [
-			{ path: 'home', title: '工作台', name: 'home', component: () => import('@/pages/Home.vue') }
+			{ path: 'home', title: '工作台', name: 'home', meta: { requireAuth: true }, component: () => import('@/pages/Home.vue') }
 		]
 	},
 	{
@@ -88,14 +88,12 @@ export const appRouter = [
    	{
    		path: '/purse',
    		name: 'purse',
-   		title: '钱包管理',
+   		title: '交易管理',
    		redirect: '/purse/userPurseList',
    		component: Main,
    		children: [
    			{ path: 'userPurseList', title: '用户钱包', name: 'userPurseList', component: () => import('@/pages/UserPurseList.vue') },
-   			{ path: 'userPurseEdit/:uuid', title: '钱包编辑', name: 'userPurseEdit', component: () => import('@/pages/UserPurseEdit.vue') },
-   			{ path: 'tradeRecordList/:uuid', title: '交易记录列表', name: 'tradeRecordList', component: () => import('@/pages/TradeRecordList.vue') },
-   			{ path: 'TradeRecordEdit/:uuid', title: '交易记录编辑', name: 'TradeRecordEdit', component: () => import('@/pages/TradeRecordEdit.vue') },
+   			{ path: 'tradeRecordList', title: '交易记录列表', name: 'tradeRecordList', component: () => import('@/pages/TradeRecordList.vue') },
    		]
    	}
 ]

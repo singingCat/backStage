@@ -1,6 +1,9 @@
 <template>
 	<div>
 		<Table border :columns="columns" :data="data"></Table>
+		<div class="page">
+			<Page :total="100" :current="1" show-total @on-change="changePage"></Page>
+		</div>
 	</div>
 </template>
 
@@ -58,21 +61,7 @@
                                             this.show(params.index)
                                         }
                                     }
-                                }, '查看'),
-                                h('Button', {
-                                    props: {
-                                        type: 'info',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                        	this.edit(params.index)
-                                        }
-                                    }
-                                }, '编辑')
+                                }, '查看')
                             ]);
                     	}
                     }
@@ -121,13 +110,16 @@
                     content: `用户名：${this.data[index].name}<br>创建时间：${this.data[index].createTime}<br>身份：${this.data[index].identity}<br>身份类型：${this.data[index].identityType}`
                 })
            	},
-           	/*编辑钱包记录*/
-           	edit (index) {
-           		this.$router.push({ path: '../tradeRecordEdit/' + this.data[index].uuid })
+           	changePage () {
+           		
            	}
 		}
 	}
 </script>
 
-<style>
+<style scoped>
+	.page {
+		float: right;
+		margin-top: 20px;
+	}
 </style>

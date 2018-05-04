@@ -6,6 +6,9 @@
 			<Option value="test2">运营人员</Option>
 			<Option value="test3">普通用户</Option>
 		</Select>
+		<Input class="searchBox" size="small" v-model="searchContent" placeholder="要搜索的用户uuid">
+			<Button slot="append" icon="search" @click="search"></Button>
+		</Input>
 	</ButtonGroup>
 </template>
 
@@ -23,6 +26,9 @@
 			},
 			typeChange (defaultType) {
 				console.log(defaultType);
+			},
+			search () {
+				
 			}
 		}
 	}

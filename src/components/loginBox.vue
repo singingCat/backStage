@@ -8,13 +8,13 @@
 				<div class="ivu-card-body">
 					<div class="form-con">
 						<Form ref="formValidate" :model="formValidate" :rules="ruleValidate">
-							<FormItem prop="name">
-					            <Input type="text" v-model="formValidate.name" placeholder="Username">
+							<FormItem prop="email">
+					            <Input type="text" v-model="formValidate.email" placeholder="请输入邮箱">
 					                <Icon type="ivu-icon ivu-icon-person" slot="prepend" style="font-size: 16px"></Icon>
 					            </Input>
 					        </FormItem>
 							<FormItem prop="password">
-					            <Input type="password" v-model="formValidate.password" placeholder="Password">
+					            <Input type="password" v-model="formValidate.password" placeholder="请输入密码">
 					                <Icon type="ivu-icon ivu-icon-locked" slot="prepend" style="font-size: 14px"></Icon>
 					            </Input>
 					       </FormItem>
@@ -31,19 +31,26 @@
 </template>
 
 <script>
+	import qs from 'qs'
+	
 	export default {
 		data (){
 			return {
 				show: false,
 				formValidate: {
-					name: '',
+					email: '',
 					password: ''
 				},
 				ruleValidate: {
-					name: [
+					email: [
 						{
 							required: true,
-							message: '用户名不能为空',
+							message: '邮箱不能为空',
+							trigger: 'blur'
+						},
+						{
+							type: 'email',
+							message: '邮箱格式不正确',
 							trigger: 'blur'
 						}
 					],
@@ -51,6 +58,11 @@
 						{
 							required: true,
 							message: '密码不能为空',
+							trigger: 'blur'
+						},
+						{
+							min: 6,
+							message: '密码最少6位',
 							trigger: 'blur'
 						}
 					]
@@ -65,14 +77,28 @@
 			 	this.$Loading.start();
                 this.$refs[name].validate((valid) => {
                     if (valid) {
-                    	this.$Loading.finish();
-                        this.$Message.success('Success!');
-                        this.$router.push({
-			                name: 'main'
-			            });
+                    	this.$axios.post('/api/user/login', qs.stringify(this.formValidate), 
+                    	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+                    	.then((response) => {
+                    		if (response.isSuccessful) {
+                    			this.cookieHandler.setCookie('token', response.token);	//设置token
+	                    		this.storageHandler.setStorage('nickName', response.currentUser.user.nickName);
+	                    		this.$Loading.finish();
+		                        this.$Message.success('登录成功!');
+		                        this.$router.push({
+					                name: 'main'
+					            });
+                    		} else {
+                    			this.$Message.error('账号&密码错误!');
+                    			this.$Loading.error();
+                    		}
+                    	})
+                    	.catch((error) => {
+                    		console.log(error);
+                    		this.$Loading.error();
+                    	})
                     } else {
                     	this.$Loading.error();
-                        this.$Message.error('Fail!');
                     }
                 })
             }

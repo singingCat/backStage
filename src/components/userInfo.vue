@@ -2,14 +2,14 @@
 	<div>
 		<div class="headTitle">后台管理系统</div>
 		<div class="userInfo">
-		    <Dropdown class="dropDown" placement="bottom-end">
+		    <Dropdown class="dropDown" placement="bottom-end" @on-click="handleClick">
 		        <a href="javascript:void(0)">
-		        	微愿管理员
+		        	{{nickName}}
 		            <Icon type="arrow-down-b"></Icon>
 		        </a>
 		        <DropdownMenu slot="list">
 		            <DropdownItem>个人中心</DropdownItem>
-		            <DropdownItem divided>退出登录</DropdownItem>
+		            <DropdownItem divided name="login">退出登录</DropdownItem>
 		        </DropdownMenu>
 		    </Dropdown>
 		    <Avatar src="https://i.loli.net/2017/08/21/599a521472424.jpg"></Avatar>
@@ -19,7 +19,20 @@
 
 <script>
 	export default {
-		
+		data () {
+			return {
+				nickName: localStorage.nickName
+			}
+		},
+		methods: {
+			handleClick (name) {
+				if (name == 'login') {	//如为登出则清除cookie和localStorage
+					this.cookieHandler.removeCookie('token');
+					this.storageHandler.removeStorage('nickName');
+				}
+				this.$router.push({ name: name })
+			}
+		}
 	}
 </script>
 

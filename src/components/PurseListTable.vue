@@ -54,18 +54,7 @@
                                             this.toTradeRecordList(params.index);
                                         }
                                     }
-                                }, '交易记录'),
-                                h('Button', {
-                                    props: {
-                                        type: 'info',
-                                        size: 'small'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.edit(params.index);
-                                        }
-                                    }
-                                }, '编辑')
+                                }, '交易记录')
                             ]);
                     	}
                     }
@@ -105,10 +94,7 @@
 		methods: {
 			toTradeRecordList (index) {
 				this.$router.push({ path: 'tradeRecordList/' + this.data[index].uuid })
-			},
-            edit (index) {
-            	this.$router.push({ path: 'userPurseEdit/' + this.data[index].uuid })
-            }
+			}
 		}
 	}
 </script>

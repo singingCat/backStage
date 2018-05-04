@@ -3,15 +3,14 @@
 </template>
 
 <script>
-export default {
-  name: 'home',
-  data () {
-    return {
-      startValue: 0,
-      endValue: 491
-    }
-  }
-}
+	export default {
+	  data () {
+	    return {
+	      startValue: 0,
+	      endValue: 491
+	    }
+	  }
+	}
 </script>
 
 <style scoped>

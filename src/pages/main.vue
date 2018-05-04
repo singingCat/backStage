@@ -66,9 +66,9 @@
 			            	<Icon type="social-usd"></Icon>
 			            	<span>用户钱包</span>
 			            </MenuItem>
-			            <MenuItem name="rechargeRecord">
+			            <MenuItem name="tradeRecordList">
 			            	<Icon type="android-clipboard"></Icon>
-			            	<span>充值记录</span>
+			            	<span>交易记录</span>
 			            </MenuItem>
 		            </Submenu>
 	        	</Menu>
@@ -105,6 +105,7 @@
 		'userList': '基本信息',
 		'userAdd': '新增用户',
 		'userEdit': '用户编辑',
+		'commentList': '评论列表',
 		'investigation': '调研管理',
 		'requestList': '请求列表',
 		'orderTakingList': '接单列表',
