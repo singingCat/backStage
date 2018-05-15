@@ -56,10 +56,10 @@ export const appRouter = [
 	    redirect: '/coin/coinList',
 	    component: Main,
 	    children: [
-	        { path: 'coinList', title: '数币信息', name: 'coinList', component: () => import('@/pages/CoinList.vue') },
-	        { path: 'coinAdd', title: '新增数币', name: 'coinAdd', component: () => import('@/pages/CoinEdit.vue') },
-	        { path: 'coinEdit/:id', title: '数币编辑', name: 'coinEdit', component: () => import('@/pages/CoinEdit.vue') },
-	        { path: 'commentList', title: '评论列表', name: 'commentList', component: () => import('@/pages/CommentList.vue') }
+	        { path: 'coinList', title: '数币信息', name: 'coinList', meta: { requireAuth: true }, component: () => import('@/pages/CoinList.vue') },
+	        { path: 'coinAdd', title: '新增数币', name: 'coinAdd', meta: { requireAuth: true }, component: () => import('@/pages/CoinEdit.vue') },
+	        { path: 'coinEdit/:id', title: '数币编辑', name: 'coinEdit', meta: { requireAuth: true }, component: () => import('@/pages/CoinEdit.vue') },
+	        { path: 'commentList', title: '评论列表', name: 'commentList', meta: { requireAuth: true }, component: () => import('@/pages/CommentList.vue') }
 	    ]
    	},
    	{
@@ -69,9 +69,9 @@ export const appRouter = [
    		redirect: '/user/userList',
    		component: Main,
    		children: [
-   			{ path: 'userList', title: '基本信息', name: 'userList', component: () => import('@/pages/UserList.vue') },
-   			{ path: 'userAdd', title: '新增用户', name: 'userAdd', component: () => import('@/pages/UserEdit.vue') },
-   			{ path: 'UserEdit/:id', title: '基本信息', name: 'userEdit', component: () => import('@/pages/UserEdit.vue') }
+   			{ path: 'userList', title: '基本信息', name: 'userList', meta: { requireAuth: true }, component: () => import('@/pages/UserList.vue') },
+   			{ path: 'userAdd', title: '新增用户', name: 'userAdd', meta: { requireAuth: true }, component: () => import('@/pages/UserEdit.vue') },
+   			{ path: 'UserEdit/:id', title: '基本信息', name: 'userEdit', meta: { requireAuth: true }, component: () => import('@/pages/UserEdit.vue') }
    		]
    	},
    	{
@@ -81,19 +81,19 @@ export const appRouter = [
    		redirect: '/investigation/requestList',
    		component: Main,
    		children: [
-   			{ path: 'requestList', title: '请求列表', name: 'requestList', component: () => import('@/pages/InvestigationRequestList.vue') },
-   			{ path: 'orderTakingList/:id', title: '接单列表', name: 'orderTakingList', component: () => import('@/pages/OrderTakingList.vue') }
+   			{ path: 'requestList', title: '请求列表', name: 'requestList', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationRequestList.vue') },
+   			{ path: 'orderTakingList/:id', title: '接单列表', name: 'orderTakingList', meta: { requireAuth: true }, component: () => import('@/pages/OrderTakingList.vue') },
+   			{ path: 'reportList', title: '请求列表', name: 'reportList', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationReportList.vue') }
    		]
    	},
    	{
    		path: '/purse',
    		name: 'purse',
    		title: '交易管理',
-   		redirect: '/purse/userPurseList',
+   		redirect: '/purse/tradeRecordList',
    		component: Main,
    		children: [
-   			{ path: 'userPurseList', title: '用户钱包', name: 'userPurseList', component: () => import('@/pages/UserPurseList.vue') },
-   			{ path: 'tradeRecordList', title: '交易记录列表', name: 'tradeRecordList', component: () => import('@/pages/TradeRecordList.vue') },
+   			{ path: 'tradeRecordList', title: '交易记录列表', name: 'tradeRecordList', meta: { requireAuth: true }, component: () => import('@/pages/TradeRecordList.vue') },
    		]
    	}
 ]

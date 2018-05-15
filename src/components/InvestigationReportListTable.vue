@@ -34,32 +34,32 @@
                         key: 'uuid'
                     },
                     {
-                        title: '请求企业',
+                        title: '报告名称',
                         key: 'company'
                     },
                     {
-                        title: '调研名称',
+                        title: '提交人',
                         key: 'requestTitle'
                     },
                     {
-                        title: '每份奖励',
+                        title: '提交人身份',
                         key: 'reward'
                     },
                     {
-                        title: '请求时间',
+                        title: '报告价格',
                         key: 'requestTime',
                         sortable: true
                     },
                     {
-                        title: '要求详情',
-                        key: 'particulars',
-                        width: 200
+                        title: '发布企业',
+                        key: 'particulars'
                     },
                     {
                     	title: '操作',
                     	width: 240,
                     	align: 'center',
                     	render: (h, params) => {
+                    		var that = this;
                     		return h('div', [
                     			h('Button', {
                                     props: {
@@ -74,21 +74,7 @@
                                             this.show(params.index)
                                         }
                                     }
-                                }, '请求详情'),
-                                h('Button', {
-                                    props: {
-                                        type: 'info',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.toReceiptList(params.index)
-                                        }
-                                    }
-                                }, '接单详情'),
+                                }, '所在调研请求详情'),
                                 h('Button', {
                                     props: {
                                         type: 'error',
@@ -100,7 +86,7 @@
                                             this.offLine(params.index);
                                         }
                                     }
-                                }, '删除')
+                                }, '上线')
                             ]);
                     	}
                     }
@@ -110,7 +96,7 @@
                     	uuid: '111',
                     	company: 'com1',
                     	requestTitle: 'title1',
-                    	particulars: '少了点街坊邻居老大手贱佛坚朗五金额分离焦虑电视剧了开房记录看',
+                    	particulars: '少了点街坊邻居老',
                         reward: '10',
                         requestTime: '2018-01-01'
                     },
@@ -118,7 +104,7 @@
                     	uuid: '222',
                     	company: 'com2',
                     	requestTitle: 'title2',
-                    	particulars: '少了点街坊邻居老大手贱佛坚朗五金额分离焦虑电视剧了开房记录看',
+                    	particulars: '少了点街坊邻居老',
                         reward: '20',
                         requestTime: '2018-01-02'
                     },
@@ -126,7 +112,7 @@
                     	uuid: '333',
                     	company: 'com3',
                     	requestTitle: 'title3',
-                    	particulars: '少了点街坊邻居老大手贱佛坚朗五金额分离焦虑电视剧了开房记录看',
+                    	particulars: '少了点街坊邻居老大手',
                         reward: '30',
                         requestTime: '2018-01-03'
                     },
@@ -134,7 +120,7 @@
                     	uuid: '444',
                     	company: 'com4',
                     	requestTitle: 'title4',
-                    	particulars: '少了点街坊邻居老大手贱佛坚朗五金额分离焦虑电视剧了开房记录看',
+                    	particulars: '少了点街坊邻视剧了开房记录看',
                         reward: '40',
                         requestTime: '2018-01-04'
                     }
@@ -156,62 +142,6 @@
            	toReceiptList (index) {
            		this.$router.push({ path: 'orderTakingList/' + this.data[index].uuid })
            	},
-            /*删除*/
-            /*remove (index) {
-                this.$Modal.confirm({
-                    render: (h, params) => {
-                    	return h('div', [
-                    		h('P', {
-                    			style: {
-                    				marginBottom: '10px'
-                    			}
-                    		}, '请选择删除理由'),
-                    		h('Select', {
-	                            props: {
-	                                value: '1'
-	                            },
-	                            style: {
-	                            	width: '150px'
-	                            },
-	                            on: {
-	                                'on-change': (event) => {
-	                                	console.log(event);
-	                                }
-	                            }
-                        	},
-                     		[h('Option',{  
-					            props: {  
-					                value: '1'  
-					            }  
-						        },'管理员删除'),  
-						        h('Option',{  
-						            props: {  
-						                value: '2'  
-						            }  
-						        },'政治敏感'),
-						        h('Option',{  
-						            props: {  
-						                value: '3'  
-						            }  
-						        },'垃圾营销'),
-						        h('Option',{  
-						            props: {  
-						                value: '4'  
-						            }  
-						        },'信息污秽'),
-						        h('Option',{  
-						            props: {  
-						                value: '5'  
-						            }  
-						        },'虚假信息')
-					    	])
-                    	])
-                    },
-                    onOk: () => {
-                    	this.data.splice(index, 1);
-                    }
-                });
-            },*/
             /*下线确认弹窗*/
             offLine (index) {
             	this.currentIndex = index;

@@ -13,7 +13,7 @@
 						align: 'center'
 					},
                     {
-                        title: '调研内容',
+                        title: '调研名称',
                         key: 'content'
                     },
                     {

@@ -33,7 +33,7 @@ Vue.prototype.cookieHandler = {
 		document.cookie = c_name + "=" + escape(value) + ((expiredays==null) ? "" : ";expires=" + exdate.toGMTString())+ ';path=/'; 
 	},
 	removeCookie: (name) => {
-    setCookie(name, "", -1);
+    Vue.prototype.cookieHandler.setCookie(name, "", -1);
 	},
 	getCookie: (c_name) => {
 		if (document.cookie.length > 0){
@@ -62,11 +62,10 @@ Vue.prototype.storageHandler = {
 	}
 }
 
-let token = Vue.prototype.cookieHandler.getCookie('token');	//从cookie中获取token
-
 // http request 拦截器
 axios.interceptors.request.use(
     config => {
+    		let token = Vue.prototype.cookieHandler.getCookie('token');	//从cookie中获取token
         if (token) {  // 判断是否存在token，如果存在的话，则每个http header都加上token
             config.headers.Authorization = token;
         }
@@ -88,6 +87,7 @@ axios.interceptors.response.use(
                 case 401:
                     // 这里写清除token的代码
                     Vue.prototype.cookieHandler.removeCookie('token');
+                    Vue.prototype.storageHandler.removeStorage('nickName');
                     console.log('token过期');
                     router.replace({
                         path: 'login',
@@ -100,9 +100,10 @@ axios.interceptors.response.use(
 );
 
 router.beforeEach((to, from, next) => {
+		let token = Vue.prototype.cookieHandler.getCookie('token');	//从cookie中获取token
 		iView.LoadingBar.start();
 		if (to.meta.requireAuth) {
-			if(token && token != ''){
+			if(!token && token == ''){
 				next();
 			} else {
 				next({

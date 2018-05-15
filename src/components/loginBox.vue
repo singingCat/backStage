@@ -80,9 +80,10 @@
                     	this.$axios.post('/api/user/login', qs.stringify(this.formValidate), 
                     	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
                     	.then((response) => {
-                    		if (response.isSuccessful) {
-                    			this.cookieHandler.setCookie('token', response.token);	//设置token
-	                    		this.storageHandler.setStorage('nickName', response.currentUser.user.nickName);
+                    		console.log(response);
+                    		if (response.data.result == 'success') {
+                    			this.cookieHandler.setCookie('token', response.data.token);	//设置token
+	                    		this.storageHandler.setStorage('nickName', response.data.currentUser.user.nickName);
 	                    		this.$Loading.finish();
 		                        this.$Message.success('登录成功!');
 		                        this.$router.push({

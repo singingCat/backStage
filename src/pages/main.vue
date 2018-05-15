@@ -54,7 +54,11 @@
 			            </template>
 			            <MenuItem name="requestList">
 			            	<Icon type="ios-list"></Icon>
-			            	<span>请求列表</span>
+			            	<span>调研列表</span>
+			            </MenuItem>
+			            <MenuItem name="reportList">
+			            	<Icon type="ios-list"></Icon>
+			            	<span>报告列表</span>
 			            </MenuItem>
 		            </Submenu>
 		            <Submenu name="4">
@@ -62,10 +66,6 @@
 			            	<Icon type="social-yen"></Icon>
 			            	<span>钱包管理</span>
 			            </template>
-			            <MenuItem name="userPurseList">
-			            	<Icon type="social-usd"></Icon>
-			            	<span>用户钱包</span>
-			            </MenuItem>
 			            <MenuItem name="tradeRecordList">
 			            	<Icon type="android-clipboard"></Icon>
 			            	<span>交易记录</span>
@@ -109,6 +109,7 @@
 		'investigation': '调研管理',
 		'requestList': '请求列表',
 		'orderTakingList': '接单列表',
+		'reportList': '报告列表',
 		'purse': '钱包管理',
 		'userPurseList': '用户钱包',
 		'userPurseEdit': '钱包编辑',

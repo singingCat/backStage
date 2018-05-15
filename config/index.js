@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
     	'/api': {  
-	        target: 'http://192.168.1.34:8080/inb-portal/',
+	        target: 'http://192.168.1.211:8080/inb-portal/',
 	        changeOrigin: true,  
 	        pathRewrite: {  
 	            '^/api': '/'  

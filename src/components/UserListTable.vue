@@ -2,12 +2,14 @@
 	<div>
 		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
 		<div class="page">
-			<Page :total="100" :current="1" show-total @on-change="changePage"></Page>
+			<Page :total="total" :current="1" show-total @on-change="changePage"></Page>
 		</div>
 	</div>
 </template>
 
 <script>
+	import qs from 'qs'
+	
 	export default {
 		data () {
 			return {
@@ -86,10 +88,10 @@
                                     },
                                     on: {
                                         click: () => {
-                                        	this.edit(params.index)
+                                        	this.deduction(params.index)
                                         }
                                     }
-                                }, '编辑'),
+                                }, '扣除'),
                                 h('Button', {
                                     props: {
                                         type: 'error',
@@ -105,49 +107,9 @@
                     	}
                     }
                 ],
-                data: [
-                    {
-                    	uuid: '111',
-                        userName: 'name1',
-                        nickName: 'nick1',
-                        createdTime: '2018-01-01',
-                        certificationType: 1,
-                        inbNumber: 100
-                    },
-                    {
-                    	uuid: '222',
-                        userName: 'name2',
-                        nickName: 'nick2',
-                        createdTime: '2018-01-01',
-                        certificationType: 2,
-                        inbNumber: 100
-                    },
-                    {
-                    	uuid: '333',
-                        userName: 'name3',
-                        nickName: 'nick3',
-                        createdTime: '2018-01-01',
-                        certificationType: 3,
-                        inbNumber: 100
-                    },
-                    {
-                    	uuid: '444',
-                        userName: 'name4',
-                        nickName: 'nick4',
-                        createdTime: '2018-01-01',
-                        certificationType: 4,
-                        inbNumber: 100
-                    },
-                    {
-                    	uuid: '555',
-                        userName: 'name5',
-                        nickName: 'nick5',
-                        createdTime: '2018-01-01',
-                        certificationType: 5,
-                        inbNumber: 100
-                    }
-                ],
-                loadingState: false
+                data: [],
+                loadingState: true,
+                total: 0
 			}
 		},
 		methods: {
@@ -215,21 +177,21 @@
                 })
             },
             /*编辑*/
-            edit (index) {
+            /*edit (index) {
             	this.$router.push({ path: 'userEdit/' + this.data[index].id })
-            },
+            },*/
             /*删除*/
             remove (index) {
                 this.$Modal.confirm({
-                    content: '<p>确认删除吗?</p>',
+                    content: `确认删除昵称为${this.data[index].nickName}的用户吗?`,
                     onOk: () => {
                     	this.data.splice(index, 1);
                     }
                 });
             },
             /*分页*/
-           	changePage (index) {
-           		console.log(index);
+           	changePage (page) {
+           		this.loadList(page);
            	},
            	/*充值*/
            	recharge (index) {
@@ -266,13 +228,70 @@
                     	])
                     },
                     onOk: () => {
+                    	console.log(this.data[index].uuid);
                     	console.log(inputVal);
                     }
                 });
+           	},
+           	deduction (index) {
+           		let inputVal = '';
+           		this.$Modal.confirm({
+                    render: (h) => {
+                    	return h('div', [
+                    		h('P', {
+                    			style: {
+                    				marginBottom: '10px'
+                    			}
+                    		}, '扣除INB数量'),
+                    		h('Input', {
+                    			props: {
+	                                value: this.data[index].name
+	                            },
+	                            on: {
+	                                input: (val) => {
+	                                    inputVal = val;
+	                                }
+	                            }
+                    		}),
+                    		h('P', {
+                    			style: {
+                    				marginBottom: '10px',
+                    				marginTop: '10px'
+                    			}
+                    		}, 'ETH交易单号'),
+                    		h('Input', {
+                    			props: {
+	                                
+                            	}
+                    		})
+                    	])
+                    },
+                    onOk: () => {
+                    	console.log(inputVal);
+                    }
+                });
+           	},
+           	/*获取列表*/
+           	loadList (page) {
+           		let that = this;
+           		this.loadingState = true;
+           		this.$axios.get('/api/user/lists?page='+page+'&pageSize=10&userName=""')
+				.then((response) => {
+					if (response.data.isSuccessful) {
+						this.data = response.data.data.rows;
+						this.total = response.data.data.total;
+						this.calcType();
+						this.loadingState = false;
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.loadingState = false;
+	        	})
            	}
 		},
 		mounted: function () {
-			this.calcType();
+			this.loadList(1);
 		}
 	}
 </script>
