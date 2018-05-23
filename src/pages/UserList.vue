@@ -1,12 +1,8 @@
 <template>
-	<div>
-		<UserActionBar></UserActionBar>
-		<UserListTable></UserListTable>
-	</div>
+	<UserListTable></UserListTable>
 </template>
 
 <script>
-	import UserActionBar from '../components/UserActionBar'
 	import UserListTable from '../components/UserListTable'
 	
 	export default {
@@ -16,7 +12,6 @@
 			}
 		},
 		components: {
-			UserActionBar,
 			UserListTable
 		}
 	}

@@ -2,7 +2,7 @@
   	<div class="layout">
 	    <Layout :style="{minHeight: '100vh'}">
         	<Sider collapsible :collapsed-width="78" v-model="isCollapsed">
-	        	<Menu :open-names="['1', '2', '3', '4']" :active-name="currentMenu" theme="dark" width="auto" :class="menuitemClasses" @on-select="onChange">
+	        	<Menu :open-names="['1', '2', '3', '4', '5']" :active-name="currentMenu" theme="dark" width="auto" :class="menuitemClasses" @on-select="onChange">
 		            <Submenu name="1">
 			            <template slot="title">
 			            	<Icon type="social-bitcoin"></Icon>
@@ -71,6 +71,26 @@
 			            	<span>交易记录</span>
 			            </MenuItem>
 		            </Submenu>
+		            <Submenu name="5">
+			            <template slot="title">
+			            	<Icon type="social-yen"></Icon>
+			            	<span>兑换管理</span>
+			            </template>
+			            <MenuItem name="exchangeRatio">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>兑换比例</span>
+			            </MenuItem>
+		            </Submenu>
+		            <Submenu name="6">
+			            <template slot="title">
+			            	<Icon type="social-yen"></Icon>
+			            	<span>活动管理</span>
+			            </template>
+			            <MenuItem name="invitationCode">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>邀请码</span>
+			            </MenuItem>
+		            </Submenu>
 	        	</Menu>
         	</Sider>
 		    <Layout>
@@ -110,11 +130,14 @@
 		'requestList': '请求列表',
 		'orderTakingList': '接单列表',
 		'reportList': '报告列表',
+		'reportEdit': '新增报告',
 		'purse': '钱包管理',
 		'userPurseList': '用户钱包',
 		'userPurseEdit': '钱包编辑',
 		'tradeRecordList': '交易记录列表',
-		'tradeRecordEdit': '交易记录编辑'
+		'tradeRecordEdit': '交易记录编辑',
+		'exchange': '兑换管理',
+		'exchangeRatio': '兑换比例'
 	}
 	
 	export default {
@@ -127,7 +150,9 @@
 	  		}
 	  	},
 	  	created () {
-	  		
+	  		if (!this.cookieHandler.getCookie('token')) {
+	  			this.$router.replace({name: 'login'});
+	  		}
 	  	},
 	  	mounted () {
 	  		this.linkage();

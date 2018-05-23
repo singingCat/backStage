@@ -15,6 +15,7 @@ Vue.use(VueCountUp)
 Vue.use(iView)
 
 Vue.prototype.$axios = axios
+axios.defaults.baseURL = '/api'
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
@@ -103,7 +104,7 @@ router.beforeEach((to, from, next) => {
 		let token = Vue.prototype.cookieHandler.getCookie('token');	//从cookie中获取token
 		iView.LoadingBar.start();
 		if (to.meta.requireAuth) {
-			if(!token && token == ''){
+			if(token && token != ''){
 				next();
 			} else {
 				next({

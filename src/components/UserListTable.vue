@@ -1,9 +1,43 @@
 <template>
 	<div>
+		<ButtonGroup size="small" class="btn-group">
+			<!--<Button type="primary" @click="add">新增</Button>-->
+			<Select size="small" class="selectType" v-model="defaultType" @on-change="typeChange(defaultType)">
+				<Option value="test1">全部</Option>
+				<Option value="test2">运营人员</Option>
+				<Option value="test3">普通用户</Option>
+			</Select>
+			<Input class="searchBox" size="small" v-model="searchContent" placeholder="要搜索的uuid或昵称">
+				<Select v-model="searchType" slot="prepend" style="width: 80px">
+		            <Option value="uuid">uuid</Option>
+		            <Option value="nickName">昵称</Option>
+		        </Select>
+				<Button slot="append" icon="search" @click="search"></Button>
+			</Input>
+		</ButtonGroup>
 		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
 		<div class="page">
 			<Page :total="total" :current="1" show-total @on-change="changePage"></Page>
 		</div>
+		<Modal
+	        v-model="showRecharge"
+	        title="INB充值"
+	        @on-ok="confirmRecharge">
+	        <p>新增INB数量:</p>
+	        <Input v-model="inbNumber"></Input>
+	        <p>钱包类型:</p>
+	        <Select v-model="walletType">
+	        	<Option value="1">eth</Option>
+	        	<Option value="2">btc</Option>
+	        </Select>
+	    </Modal>
+	    <Modal
+	        v-model="showRechargeConfirm"
+	        title="确认充值INB"
+	        @on-ok="confirmRechargeSecond">
+	        	充值前INB数量: {{ beforeRecharge }}<br>
+	        	充值后INB数量: {{ afterRecharge }}
+	    </Modal>
 	</div>
 </template>
 
@@ -22,11 +56,7 @@
 					{
                         title: 'uuid',
                         key: 'uuid'
-                    },
-                    {
-                        title: '用户名',
-                        key: 'userName'
-                    },
+                   },
                     {
                         title: '昵称',
                         key: 'nickName'
@@ -80,20 +110,6 @@
                                 }, '充值'),
                                 h('Button', {
                                     props: {
-                                        type: 'info',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                        	this.deduction(params.index)
-                                        }
-                                    }
-                                }, '扣除'),
-                                h('Button', {
-                                    props: {
                                         type: 'error',
                                         size: 'small'
                                     },
@@ -107,49 +123,57 @@
                     	}
                     }
                 ],
-                data: [],
-                loadingState: true,
-                total: 0
+                data: [],					//渲染的数据
+                loadingState: true,			//表格读取状态
+                total: 0,					//查询出的数据总条数
+                defaultType: 'test1',		//默认搜索的全部
+				searchType: 'uuid',			//搜索类型
+				searchContent: '',			//搜索的内容
+				showRecharge: false,		//显示充值模态框
+				showRechargeConfirm: false,	//显示充值确认模态框
+				currentIndex: '',			//当前操作的索引
+				inbNumber: '',				//新增INB数量
+				walletType: '1',			//钱包类型
+				beforeRecharge: '10',			//充值前INB数量
+				afterRecharge: '20'			//充值后INB数量
 			}
 		},
 		methods: {
-			/*计算认证类型和激活状态*/
-			calcType () {
+			/*处理数据*/
+			handleData () {
 				this.data.forEach((item, index) => {
-					let type = item.certificationType;
-					let verified = item.emailVerified;
-					if (type) {
-						switch(type)
-						{
-							case 1:	
-								item.certificationType = '没有认证';
-								break;
-							case 2:
-								item.certificationType = '分析师';
-								break;
-							case 3:
-								item.certificationType = '媒体';
-								break;
-							case 4:
-								item.certificationType = '投资者';
-								break;
-							case 5:
-								item.certificationType = '企业';
-								break;
-							default: item.certificationType = '未知'
-						}
+					item.createdTime = this.formatDate(item.createdTime);
+					item.registerTime = this.formatDate(item.registerTime);
+					switch(item.certificationType)
+					{
+						case 1:	
+							item.certificationType = '没有认证';
+							break;
+						case 2:
+							item.certificationType = '分析师';
+							break;
+						case 3:
+							item.certificationType = '媒体';
+							break;
+						case 4:
+							item.certificationType = '投资者';
+							break;
+						case 5:
+							item.certificationType = '企业';
+							break;
+						default: 
+							item.certificationType = '未知';
+							break;
 					}
-					if (verified) {
-						switch(verified)
-						{
-							case 1:
-								item.emailVerified = '未激活';
-								break;
-							case 2:
-								item.emailVerified = '已激活';
-								break;
-							default: item.emailVerified = '未知';
-						}
+					switch(item.emailVerified)
+					{
+						case 1:
+							item.emailVerified = '未激活';
+							break;
+						case 2:
+							item.emailVerified = '已激活';
+							break;
+						default: item.emailVerified = '未知';
 					}
 				})
 			},
@@ -175,17 +199,29 @@
                     		neo充值地址id：${this.data[index].neoExchangeAddressId}<br>
                     		eos充值地址id：${this.data[index].eosExchangeAddressId}<br>`
                 })
-            },
-            /*编辑*/
-            /*edit (index) {
-            	this.$router.push({ path: 'userEdit/' + this.data[index].id })
-            },*/
+           },
             /*删除*/
             remove (index) {
                 this.$Modal.confirm({
                     content: `确认删除昵称为${this.data[index].nickName}的用户吗?`,
                     onOk: () => {
-                    	this.data.splice(index, 1);
+                    	let userUuid = this.data[index].uuid;
+                    	this.loadingState = true;
+		           		this.$axios.post('user/remove', qs.stringify({ userUuid: userUuid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data.splice(index, 1);
+								this.loadingState = false;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: '操作失败' });
+							}
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
                     }
                 });
             },
@@ -195,92 +231,46 @@
            	},
            	/*充值*/
            	recharge (index) {
-           		let inputVal = '';
-           		this.$Modal.confirm({
-                    render: (h) => {
-                    	return h('div', [
-                    		h('P', {
-                    			style: {
-                    				marginBottom: '10px'
-                    			}
-                    		}, '新增INB数量'),
-                    		h('Input', {
-                    			props: {
-	                                value: this.data[index].name
-	                            },
-	                            on: {
-	                                input: (val) => {
-	                                    inputVal = val;
-	                                }
-	                            }
-                    		}),
-                    		h('P', {
-                    			style: {
-                    				marginBottom: '10px',
-                    				marginTop: '10px'
-                    			}
-                    		}, 'ETH交易单号'),
-                    		h('Input', {
-                    			props: {
-	                                
-                            	}
-                    		})
-                    	])
-                    },
-                    onOk: () => {
-                    	console.log(this.data[index].uuid);
-                    	console.log(inputVal);
-                    }
-                });
+               	this.showRecharge = true;
+               	this.currentIndex = index;
            	},
-           	deduction (index) {
-           		let inputVal = '';
-           		this.$Modal.confirm({
-                    render: (h) => {
-                    	return h('div', [
-                    		h('P', {
-                    			style: {
-                    				marginBottom: '10px'
-                    			}
-                    		}, '扣除INB数量'),
-                    		h('Input', {
-                    			props: {
-	                                value: this.data[index].name
-	                            },
-	                            on: {
-	                                input: (val) => {
-	                                    inputVal = val;
-	                                }
-	                            }
-                    		}),
-                    		h('P', {
-                    			style: {
-                    				marginBottom: '10px',
-                    				marginTop: '10px'
-                    			}
-                    		}, 'ETH交易单号'),
-                    		h('Input', {
-                    			props: {
-	                                
-                            	}
-                    		})
-                    	])
-                    },
-                    onOk: () => {
-                    	console.log(inputVal);
-                    }
-                });
-           	},
+           	/*确认充值*/
+           	confirmRecharge () {
+	        	this.showRechargeConfirm = true;
+	        	this.beforeRecharge = this.data[this.currentIndex].inbNumber;
+	        	this.afterRecharge = this.beforeRecharge + parseInt(this.inbNumber);
+			},
+			/*再次确认充值*/
+			confirmRechargeSecond () {
+				let uuid = this.data[this.currentIndex].uuid;
+				let inbNumber = parseInt(this.inbNumber);
+				let walletType = parseInt(this.walletType);
+				this.loadingState = true;
+           		this.$axios.post('user/recharge', qs.stringify({ uuid: uuid, inbNumber: inbNumber, walletType: walletType }),
+           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+				.then((response) => {
+					if(response.data.isSuccessful){
+						this.data[this.currentIndex].inbNumber += inbNumber;
+						this.loadingState = false;
+						this.$Notice.success({ title: '操作成功' });
+					} else {
+						this.$Notice.error({ title: '操作失败' });
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.loadingState = false;
+	        	})
+			},
            	/*获取列表*/
            	loadList (page) {
-           		let that = this;
            		this.loadingState = true;
-           		this.$axios.get('/api/user/lists?page='+page+'&pageSize=10&userName=""')
+           		this.$axios.get('user/lists?page='+page+'&pageSize=10')
 				.then((response) => {
 					if (response.data.isSuccessful) {
 						this.data = response.data.data.rows;
 						this.total = response.data.data.total;
-						this.calcType();
+						this.handleData();
 						this.loadingState = false;
 					}
 	        	})
@@ -288,7 +278,44 @@
 	        		console.log(error);
 	        		this.loadingState = false;
 	        	})
-           	}
+           	},
+           	/*add () {
+				this.$router.push({ name: 'userAdd' })
+			},
+			typeChange (defaultType) {
+				console.log(defaultType);
+			},*/
+			/*搜索*/
+			search () {
+				let searchType = this.searchType;
+				let searchContent = this.searchContent;
+				this.loadingState = true;
+           		this.$axios.get('user/lists?page=1&pageSize=10'+'&'+searchType+'='+searchContent)
+				.then((response) => {
+					console.log(response);
+					if (response.data.isSuccessful) {
+						this.data = response.data.data.rows;
+						this.total = response.data.data.total;
+						this.handleData();
+						this.loadingState = false;
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.loadingState = false;
+	        	})
+			},
+			/*时间格式化*/
+			formatDate (timestamp) {
+				let date = new Date(timestamp);
+		        let Y = date.getFullYear() + '-';
+		        let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+		        let D = (	date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+		        let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+		        let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+		        let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+		        return Y+M+D+h+m+s;
+			}
 		},
 		mounted: function () {
 			this.loadList(1);
@@ -297,6 +324,23 @@
 </script>
 
 <style scoped>
+	.btn-group {
+		margin-bottom: 10px;
+		margin-right: 20px;
+		width: 100%;
+	}
+	.btn-group button.ivu-btn {
+		float: right;
+	}
+	.selectType {
+		float: right;
+		width: 100px;
+		margin-left: 20px;
+	}
+	.searchBox {
+		float: right;
+		width: 280px;
+	}
 	.page {
 		float: right;
 		margin-top: 20px;

@@ -83,7 +83,8 @@ export const appRouter = [
    		children: [
    			{ path: 'requestList', title: '请求列表', name: 'requestList', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationRequestList.vue') },
    			{ path: 'orderTakingList/:id', title: '接单列表', name: 'orderTakingList', meta: { requireAuth: true }, component: () => import('@/pages/OrderTakingList.vue') },
-   			{ path: 'reportList', title: '请求列表', name: 'reportList', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationReportList.vue') }
+   			{ path: 'reportList', title: '报告列表', name: 'reportList', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationReportList.vue') },
+   			{ path: 'reportEdit', title: '新增报告', name: 'reportEdit', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationReportEdit.vue') }
    		]
    	},
    	{
@@ -93,7 +94,16 @@ export const appRouter = [
    		redirect: '/purse/tradeRecordList',
    		component: Main,
    		children: [
-   			{ path: 'tradeRecordList', title: '交易记录列表', name: 'tradeRecordList', meta: { requireAuth: true }, component: () => import('@/pages/TradeRecordList.vue') },
+   			{ path: 'tradeRecordList', title: '交易记录列表', name: 'tradeRecordList', meta: { requireAuth: true }, component: () => import('@/pages/TradeRecordList.vue') }
+   		]
+   	},
+   	{
+   		path: '/exchange',
+   		name: 'exchange',
+   		title: '兑换管理',
+   		component: Main,
+   		children: [
+   			{ path: 'exchangeRatio', title: '兑换比例', name: 'exchangeRatio', meta: { requireAuth: true }, component: () => import('@/pages/ExchangeRatio.vue') }
    		]
    	}
 ]

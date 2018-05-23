@@ -22,6 +22,10 @@
                         key: 'uuid'
                     },
                     {
+                        title: '用户名',
+                        key: 'name'
+                    },
+                    {
                         title: '交易类型',
                         key: 'tradeType'
                     },
@@ -69,6 +73,7 @@
                 data: [
                     {
                     	uuid: '111',
+                    	name: 'nam1',
                         tradeType: '提币',
                         tradeAmount: '$10.2',
                         tradeNumber: '123123123',
@@ -77,6 +82,7 @@
                     },
                     {
                     	uuid: '222',
+                    	name: 'nam2',
                         tradeType: '充值',
                         tradeAmount: '$10.2',
                         tradeNumber: '123123123',
@@ -85,6 +91,7 @@
                     },
                     {
                     	uuid: '333',
+                    	name: 'nam3',
                         tradeType: '奖励',
                         tradeAmount: '$10.2',
                         tradeNumber: '123123123',
@@ -93,6 +100,7 @@
                     },
                     {
                     	uuid: '444',
+                    	name: 'nam4',
                         tradeType: '提币',
                         tradeAmount: '$10.2',
                         tradeNumber: '123123123',

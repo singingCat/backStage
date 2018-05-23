@@ -12,163 +12,75 @@
 						width: 60,
 						align: 'center'
 					},
+					{
+						title: 'uid',
+						key: 'uid'
+					},
                     {
                         title: '调研名称',
-                        key: 'content'
+                        key: 'name'
                     },
                     {
                         title: '分析师',
-                        key: 'analyst'
+                        key: 'nickName'
                     },
                     {
                         title: '接单时间',
-                        key: 'orderTakingTime'
+                        key: 'orderTime'
                     },
                     {
                         title: '状态',
                         key: 'status'
-                    },
-                    {
-                        title: '企业反馈',
-                        key: 'feedBack'
-                    },
-                    {
-                    	title: '操作',
-                    	key: 'action',
-                    	width: 200,
-                    	align: 'center',
-                    	render: (h, params) => {
-                    		return h('div', [
-                    			h('Button', {
-                                    props: {
-                                        type: 'success',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.show(params.index)
-                                        }
-                                    }
-                                }, '查看'),
-                                h('Button', {
-                                    props: {
-                                        type: 'error',
-                                        size: 'small'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.remove(params.index)
-                                        }
-                                    }
-                                }, '删除')
-                            ]);
-                    	}
                     }
                 ],
-                data: [
-                    {
-                    	id: '111',
-                        content: 'content1',
-                        analyst: 'name1',
-                        orderTakingTime: '2018-01-01',
-                        status: '未完成',
-                        feedBack: '未反馈'
-                    },
-                    {
-                    	id: '222',
-                        content: 'content2',
-                        analyst: 'name2',
-                        orderTakingTime: '2018-01-01',
-                        status: '未完成',
-                        feedBack: '未反馈'
-                    },
-                    {
-                    	id: '333',
-                        content: 'content3',
-                        analyst: 'name3',
-                        orderTakingTime: '2018-01-01',
-                        status: '完成',
-                        feedBack: '已反馈'
-                    },
-                    {
-                    	id: '444',
-                        content: 'content4',
-                        analyst: 'name4',
-                        orderTakingTime: '2018-01-01',
-                        status: '完成',
-                        feedBack: '已反馈'
-                    }
-                ]
+                data: []
 			}
 		},
 		methods: {
-			/*查看*/
-			show (index) {
-                this.$Modal.success({
-                    title: `${this.data[index].content}的主要信息`,
-                    content: `调研内容：${this.data[index].content}<br>分析师: ${this.data[index].analyst}<br>接单时间: ${this.data[index].orderTakingTime}<br>状态: ${this.data[index].status}<br>企业反馈: ${this.data[index].feedBack}`
-                })
-            },
-            /*删除*/
-            remove (index) {
-                this.$Modal.confirm({
-                    render: (h, params) => {
-                    	return h('div', [
-                    		h('P', {
-                    			style: {
-                    				marginBottom: '10px'
-                    			}
-                    		}, '请选择删除理由'),
-                    		h('Select', {
-                            props: {
-                                value: '1'
-                            },
-                            style: {
-                            	width: '150px'
-                            },
-                            on: {
-                                'on-change': (event) => {
-                                	console.log(event);
-                                }
-                            }
-                        },
-                     	[
-					        h('Option',{  
-					            props: {  
-					                value: '1'  
-					            }  
-					        },'管理员删除'),  
-					        h('Option',{  
-					            props: {  
-					                value: '2'  
-					            }  
-					        },'政治敏感'),
-					        h('Option',{  
-					            props: {  
-					                value: '3'  
-					            }  
-					        },'垃圾营销'),
-					        h('Option',{  
-					            props: {  
-					                value: '4'  
-					            }  
-					        },'信息污秽'),
-					        h('Option',{  
-					            props: {  
-					                value: '5'  
-					            }  
-					        },'虚假信息')
-					    ])
-                    	])
-                    },
-                    onOk: () => {
-                    	this.data.splice(index, 1);
-                    }
-                });
-            }
+			/*数据处理*/
+			handleData () {
+				this.data.forEach((item, index) => {
+					item.name = this.$route.query.name;
+					item.nickName = item.user.nickName;
+					item.orderTime = this.formatDate(item.orderTime);
+					/*状态*/
+					switch(item.status)
+					{
+						case 1:
+							item.status = '已发布';
+							break;
+						case 2:
+							item.status = '已接单';
+							break;
+						case 3:
+							item.status = '已完成';
+							break;
+						case 4:
+							item.status = '已过期';
+							break;
+						case 5:
+							item.status = '已取消';
+							break;
+						default:
+							break;
+					}
+				});
+			},
+			/*时间格式化*/
+			formatDate (timestamp) {
+				let date = new Date(timestamp);
+		        let Y = date.getFullYear() + '-';
+		        let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+		        let D = (	date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+		        let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+		        let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+		        let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+		        return Y+M+D+h+m+s;
+			}
+		},
+		mounted: function () {	
+			this.data = this.$route.query.taskAcceptList;
+			this.handleData();
 		}
 	}
 </script>

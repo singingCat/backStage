@@ -77,7 +77,7 @@
 			 	this.$Loading.start();
                 this.$refs[name].validate((valid) => {
                     if (valid) {
-                    	this.$axios.post('/api/user/login', qs.stringify(this.formValidate), 
+                    	this.$axios.post('user/login', qs.stringify(this.formValidate), 
                     	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
                     	.then((response) => {
                     		console.log(response);

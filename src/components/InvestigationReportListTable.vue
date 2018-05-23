@@ -1,25 +1,26 @@
 <template>
 	<div>
-		<Table border :columns="columns" :data="data"></Table>
-		<Modal
-	        v-model="showOff"
-	        @on-ok="ok">
-	        <P style="margin-bottom: 10px">请选择下线理由</P>
-	        <Select 
-	        	v-model="reason"
-	        	@on-ok="ok"
-	        	style="width: 150px">
-	        	<Option value="1">管理员删除</Option>
-	        	<Option value="2">政治敏感</Option>
-	        	<Option value="3">垃圾营销</Option>
-	        	<Option value="4">信息污秽</Option>
-	        	<Option value="5">虚假信息</Option>
-	        </Select>
-	   	</Modal>
+		<ButtonGroup size="small" class="btn-group">
+			<Button type="primary" @click="add">新增</Button>
+			<Input class="searchBox" size="small" v-model="searchContent" placeholder="要搜索的内容">
+				<Select v-model="searchType" slot="prepend" style="width: 100px">
+		            <Option value="uuid">分析师uuid</Option>
+		            <Option value="nickName">分析师昵称</Option>
+		            <Option value="reportName">报告名称</Option>
+		        </Select>
+				<Button slot="append" icon="search" @click="search"></Button>
+			</Input>
+		</ButtonGroup>
+		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
+		<div class="page">
+			<Page :total="100" :current="1" show-total @on-change="changePage"></Page>
+		</div>
 	</div>
 </template>
 
 <script>
+	import qs from 'qs'
+	
 	export default {
 		data () {
 			return {
@@ -30,29 +31,33 @@
 						align: 'center'
 					},
                     {
-                        title: 'uuid',
-                        key: 'uuid'
+                        title: 'uid',
+                        key: 'uid'
                     },
                     {
                         title: '报告名称',
-                        key: 'company'
+                        key: 'name'
                     },
                     {
                         title: '提交人',
-                        key: 'requestTitle'
+                        key: 'nickName'
                     },
                     {
                         title: '提交人身份',
-                        key: 'reward'
+                        key: 'certificationType'
                     },
                     {
                         title: '报告价格',
-                        key: 'requestTime',
-                        sortable: true
+                        key: 'price'
                     },
                     {
-                        title: '发布企业',
-                        key: 'particulars'
+                        title: '创建时间',
+                        key: 'createdTime',
+                        width: 150
+                    },
+                    {
+                        title: '地址',
+                        key: 'content'
                     },
                     {
                     	title: '操作',
@@ -77,57 +82,28 @@
                                 }, '所在调研请求详情'),
                                 h('Button', {
                                     props: {
-                                        type: 'error',
+                                        type: params.row.onlineStatus == 3?'error':'warning',
                                         size: 'small'
                                     },
                                     on: {
                                         click: () => {
-                                            //this.remove(params.index)
-                                            this.offLine(params.index);
+                                            if (params.row.onlineStatus == 3) {
+                                        		this.offLine(params.index, params.row.uid);
+                                        	} else {
+                                        		this.onLine(params.index, params.row.uid);
+                                        	}
                                         }
                                     }
-                                }, '上线')
+                                }, params.row.onlineStatus == 3?'下线':'上线')
                             ]);
                     	}
                     }
                 ],
-                data: [
-                    {
-                    	uuid: '111',
-                    	company: 'com1',
-                    	requestTitle: 'title1',
-                    	particulars: '少了点街坊邻居老',
-                        reward: '10',
-                        requestTime: '2018-01-01'
-                    },
-                    {
-                    	uuid: '222',
-                    	company: 'com2',
-                    	requestTitle: 'title2',
-                    	particulars: '少了点街坊邻居老',
-                        reward: '20',
-                        requestTime: '2018-01-02'
-                    },
-                    {
-                    	uuid: '333',
-                    	company: 'com3',
-                    	requestTitle: 'title3',
-                    	particulars: '少了点街坊邻居老大手',
-                        reward: '30',
-                        requestTime: '2018-01-03'
-                    },
-                    {
-                    	uuid: '444',
-                    	company: 'com4',
-                    	requestTitle: 'title4',
-                    	particulars: '少了点街坊邻视剧了开房记录看',
-                        reward: '40',
-                        requestTime: '2018-01-04'
-                    }
-                ],
-                showOff: false,
-                currentIndex: '',
-                reason: '1'
+                loadingState: true,			//表格读取状态
+                data: [],					//渲染的数据
+                currentIndex: '',			//当前索引
+                searchType: 'uuid',			//检索类型
+                searchContent: ''			//检索内容
 			}
 		},
 		methods: {
@@ -135,26 +111,203 @@
 			show (index) {
                 this.$Modal.success({
                     title: `${this.data[index].requestTitle}的主要信息`,
-                    content: `调研请求奖励INB数量：123<br>调研请求需求分析师等级：123<br>调研请求需求分析师星级：123<br>所需要语言: 123<br>是否公开: 123<br>请求调研份数需求: 123<br>请求调研开始时间: 123<br>请求调研结束时间: 123<br>调研状态: 123<br>免费查看份数: 123<br>免费查看剩余份数: 123<br>付费查看金额: 123`
+                    content: `货币名：${this.data[index].task.coin.name}<br>
+                    		调研名称：${this.data[index].task.name}<br>
+                    		调研状态：${this.data[index].task.status}<br>
+                    		是否公开: ${this.data[index].task.isPublic}<br>
+                    		请求调研开始时间: ${this.data[index].task.validFromTime}<br>
+                    		请求调研结束时间: ${this.data[index].task.validToTime}<br>
+                    		需要多少分析师: ${this.data[index].task.needAnalystNumber}<br>
+                    		每份奖励：${this.data[index].task.rewardInb}<br>
+                    		附带免费报告数: ${this.data[index].task.freeReportNumber}<br>
+                    		接单数: ${this.data[index].task.acceptRequestNumber}<br>
+                    		要求详情: ${this.data[index].task.description}<br>`
                 })
             },
             /*查看接单详情*/
            	toReceiptList (index) {
            		this.$router.push({ path: 'orderTakingList/' + this.data[index].uuid })
            	},
-            /*下线确认弹窗*/
-            offLine (index) {
-            	this.currentIndex = index;
-            	this.showOff = true;
+            /*获取列表*/
+           	loadList (page) {
+           		this.loadingState = true;
+           		let url = '';
+           		if (this.searchContent == '') {
+           			url = 'user/report/condition/list?page=' + page + '&pageSize=10';
+           		} else {
+           			url = 'user/report/condition/list?' + this.searchType + '=' + this.searchContent + '&page=' + page + '&pageSize=10';
+           		}
+           		this.$axios.get(url)
+				.then((response) => {
+					if(response.data.isSuccessful){
+						this.data = response.data.data.rows;
+						this.total = parseInt(response.data.data.total);
+						this.handleData();
+						this.loadingState = false;
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.loadingState = false;
+	        	})
+           	},
+            /*分页*/
+            changePage (page) {
+            	this.loadList(page);
             },
-            /*确认下线*/
-            ok () {
-            	this.$Message.info(this.currentIndex);
-            	this.$Message.info(this.reason);
-            }
+            /*搜索*/
+           	search () {
+           		this.loadList(1);
+           	},
+           	/*数据处理*/
+           	handleData () {
+           		this.data.forEach((item, index) => {
+           			item.nickName = item.user.nickName;
+           			item.createdTime = this.formatDate(item.createdTime);
+           			/*提交人身份*/
+           			switch(item.user.certificationType)
+           			{
+           				case 1:	
+							item.certificationType = '没有认证';
+							break;
+						case 2:
+							item.certificationType = '分析师';
+							break;
+						case 3:
+							item.certificationType = '媒体';
+							break;
+						case 4:
+							item.certificationType = '投资者';
+							break;
+						case 5:
+							item.certificationType = '企业';
+							break;
+						default: 
+							item.certificationType = '未知';
+							break;
+           			}
+           			/*状态*/
+					switch(item.task.status)
+					{
+						case 1:
+							item.task.status = '已发布';
+							break;
+						case 2:
+							item.task.status = '已接单';
+							break;
+						case 3:
+							item.task.status = '已完成';
+							break;
+						case 4:
+							item.task.status = '已过期';
+							break;
+						case 5:
+							item.task.status = '已取消';
+							break;
+						default:
+							break;
+					}
+					/*是否公开*/
+					switch(item.task.isPublic)
+					{
+						case 1:
+							item.task.isPublic = '公开';
+							break;
+						case 2:
+							item.task.isPublic = '不公开';
+							break;
+						default:
+							break;
+					}
+					item.task.validFromTime = this.formatDate(item.task.validFromTime);
+           			item.task.validToTime = this.formatDate(item.task.validToTime);
+           		});
+           	},
+           	/*下线*/
+            offLine (index, reportId) {
+            	this.$Modal.confirm({
+                    content: `确认下线名称为${this.data[index].name}的报告吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+		           		this.$axios.post('user/report/remove', qs.stringify({ reportId: reportId }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].onlineStatus = 9;
+								this.loadingState = false;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: '操作失败' });
+							}
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+                });
+            },
+            /*上线*/
+            onLine (index, reportId) {
+            	this.$Modal.confirm({
+                    content: `确认上线名称为${this.data[index].name}的报告吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+		           		this.$axios.post('user/report/online', qs.stringify({ reportId: reportId }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].onlineStatus = 3;
+								this.loadingState = false;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: '操作失败' });
+							}
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+                });
+            },
+            /*新增*/
+            add () {
+				this.$Message.info('新增')
+			},
+			/*时间格式化*/
+			formatDate (timestamp) {
+				let date = new Date(timestamp);
+		        let Y = date.getFullYear() + '-';
+		        let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+		        let D = (	date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+		        let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+		        let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+		        let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+		        return Y+M+D+h+m+s;
+			}
+		},
+		mounted () {
+			this.loadList(1);
 		}
 	}
 </script>
 
-<style>
+<style scoped>
+	.btn-group {
+		margin-bottom: 10px;
+		width: 100%;
+	}
+	.btn-group button.ivu-btn {
+		float: right;
+	}
+	.searchBox {
+		float: right;
+		width: 280px;
+		margin-right: 20px;
+	}
+	.page {
+		float: right;
+		margin-top: 20px;
+	}
 </style>

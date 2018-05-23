@@ -1,25 +1,25 @@
 <template>
 	<div>
-		<Table border :columns="columns" :data="data"></Table>
-		<Modal
-	        v-model="showOff"
-	        @on-ok="ok">
-	        <P style="margin-bottom: 10px">请选择下线理由</P>
-	        <Select 
-	        	v-model="reason"
-	        	@on-ok="ok"
-	        	style="width: 150px">
-	        	<Option value="1">管理员删除</Option>
-	        	<Option value="2">政治敏感</Option>
-	        	<Option value="3">垃圾营销</Option>
-	        	<Option value="4">信息污秽</Option>
-	        	<Option value="5">虚假信息</Option>
-	        </Select>
-	   	</Modal>
+		<ButtonGroup size="small" class="btn-group">
+			<Input class="searchBox" size="small" v-model="searchContent" placeholder="要搜索的内容">
+				<Select v-model="searchType" slot="prepend" style="width: 100px">
+		            <Option value="uuid">分析师uuid</Option>
+		            <Option value="nickName">分析师昵称</Option>
+		            <Option value="taskName">调研名称</Option>
+		        </Select>
+				<Button slot="append" icon="search" @click="search"></Button>
+			</Input>
+		</ButtonGroup>
+		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
+		<div class="page">
+			<Page :total="total" :current="1" show-total @on-change="changePage"></Page>
+		</div>
 	</div>
 </template>
 
 <script>
+	import qs from 'qs'
+	
 	export default {
 		data () {
 			return {
@@ -30,29 +30,30 @@
 						align: 'center'
 					},
                     {
-                        title: 'uuid',
-                        key: 'uuid'
+                        title: 'uid',
+                        key: 'uid'
                     },
                     {
                         title: '请求企业',
-                        key: 'company'
+                        key: 'nickName'
                     },
                     {
                         title: '调研名称',
-                        key: 'requestTitle'
+                        key: 'name'
                     },
                     {
                         title: '每份奖励',
-                        key: 'reward'
+                        key: 'rewardInb'
                     },
                     {
                         title: '请求时间',
-                        key: 'requestTime',
-                        sortable: true
+                        key: 'validFromTime',
+                        sortable: true,
+                        width: 150
                     },
                     {
                         title: '要求详情',
-                        key: 'particulars',
+                        key: 'description',
                         width: 200
                     },
                     {
@@ -91,57 +92,28 @@
                                 }, '接单详情'),
                                 h('Button', {
                                     props: {
-                                        type: 'error',
+                                        type: params.row.onlineStatus == 3?'error':'warning',
                                         size: 'small'
                                     },
                                     on: {
                                         click: () => {
-                                            //this.remove(params.index)
-                                            this.offLine(params.index);
+                                        	if (params.row.onlineStatus == 3) {
+                                        		this.offLine(params.index, params.row.uid, params.row.user.uuid);
+                                        	} else {
+                                        		this.onLine(params.index, params.row.uid, params.row.user.uuid);
+                                        	}
                                         }
                                     }
-                                }, '删除')
+                                }, params.row.onlineStatus == 3?'下线':'上线')
                             ]);
                     	}
                     }
                 ],
-                data: [
-                    {
-                    	uuid: '111',
-                    	company: 'com1',
-                    	requestTitle: 'title1',
-                    	particulars: '少了点街坊邻居老大手贱佛坚朗五金额分离焦虑电视剧了开房记录看',
-                        reward: '10',
-                        requestTime: '2018-01-01'
-                    },
-                    {
-                    	uuid: '222',
-                    	company: 'com2',
-                    	requestTitle: 'title2',
-                    	particulars: '少了点街坊邻居老大手贱佛坚朗五金额分离焦虑电视剧了开房记录看',
-                        reward: '20',
-                        requestTime: '2018-01-02'
-                    },
-                    {
-                    	uuid: '333',
-                    	company: 'com3',
-                    	requestTitle: 'title3',
-                    	particulars: '少了点街坊邻居老大手贱佛坚朗五金额分离焦虑电视剧了开房记录看',
-                        reward: '30',
-                        requestTime: '2018-01-03'
-                    },
-                    {
-                    	uuid: '444',
-                    	company: 'com4',
-                    	requestTitle: 'title4',
-                    	particulars: '少了点街坊邻居老大手贱佛坚朗五金额分离焦虑电视剧了开房记录看',
-                        reward: '40',
-                        requestTime: '2018-01-04'
-                    }
-                ],
-                showOff: false,
-                currentIndex: '',
-                reason: '1'
+                data: [],				//要渲染的数据
+                loadingState: true,		//表格读取状态
+                total: 0,				//总页数
+                searchType: 'uuid',		//检索类型
+                searchContent: ''		//检索内容
 			}
 		},
 		methods: {
@@ -149,82 +121,173 @@
 			show (index) {
                 this.$Modal.success({
                     title: `${this.data[index].requestTitle}的主要信息`,
-                    content: `调研请求奖励INB数量：123<br>调研请求需求分析师等级：123<br>调研请求需求分析师星级：123<br>所需要语言: 123<br>是否公开: 123<br>请求调研份数需求: 123<br>请求调研开始时间: 123<br>请求调研结束时间: 123<br>调研状态: 123<br>免费查看份数: 123<br>免费查看剩余份数: 123<br>付费查看金额: 123`
+                    content: `货币名：${this.data[index].coin.name}<br>
+                    		调研状态：${this.data[index].status}<br>
+                    		所需要语言：${this.data[index].language}<br>
+                    		是否公开: ${this.data[index].isPublic}<br>
+                    		冻结的Inb数量: ${this.data[index].frozenInb}<br>
+                    		请求调研开始时间: ${this.data[index].validFromTime}<br>
+                    		请求调研结束时间: ${this.data[index].validToTime}<br>
+                    		需要多少分析师: ${this.data[index].needAnalystNumber}<br>
+                    		附带免费报告数: ${this.data[index].freeReportNumber}<br>
+                    		接单数: ${this.data[index].acceptRequestNumber}`
                 })
             },
             /*查看接单详情*/
            	toReceiptList (index) {
-           		this.$router.push({ path: 'orderTakingList/' + this.data[index].uuid })
+           		this.$router.push({ path: 'orderTakingList/' + this.data[index].uid, query: { name: this.data[index].name, taskAcceptList: this.data[index].taskAcceptList } })
            	},
-            /*删除*/
-            /*remove (index) {
-                this.$Modal.confirm({
-                    render: (h, params) => {
-                    	return h('div', [
-                    		h('P', {
-                    			style: {
-                    				marginBottom: '10px'
-                    			}
-                    		}, '请选择删除理由'),
-                    		h('Select', {
-	                            props: {
-	                                value: '1'
-	                            },
-	                            style: {
-	                            	width: '150px'
-	                            },
-	                            on: {
-	                                'on-change': (event) => {
-	                                	console.log(event);
-	                                }
-	                            }
-                        	},
-                     		[h('Option',{  
-					            props: {  
-					                value: '1'  
-					            }  
-						        },'管理员删除'),  
-						        h('Option',{  
-						            props: {  
-						                value: '2'  
-						            }  
-						        },'政治敏感'),
-						        h('Option',{  
-						            props: {  
-						                value: '3'  
-						            }  
-						        },'垃圾营销'),
-						        h('Option',{  
-						            props: {  
-						                value: '4'  
-						            }  
-						        },'信息污秽'),
-						        h('Option',{  
-						            props: {  
-						                value: '5'  
-						            }  
-						        },'虚假信息')
-					    	])
-                    	])
-                    },
+           	/*获取列表*/
+           	loadList (page) {
+           		this.loadingState = true;
+	        	let url = '';
+	        	if (this.searchContent == '') {
+           			url = 'user/task/condition/lists?page=' + page + '&pageSize=10';
+           		} else {
+           			url = 'user/task/condition/lists?' + this.searchType + '=' + this.searchContent + '&page=' + page + '&pageSize=10';
+           		}
+           		this.$axios.get(url)
+				.then((response) => {
+					console.log(response.data);
+					if(response.data.isSuccessful){
+						this.data = response.data.data.rows;
+						this.total = parseInt(response.data.data.total);
+						this.handleData();
+						this.loadingState = false;
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.loadingState = false;
+	        	})
+           	},
+           	/*分页*/
+           	changePage (page) {
+           		this.loadList(page);
+           	},
+           	/*搜索*/
+           	search () {
+           		this.loadList(1);
+           	},
+            /*下线*/
+            offLine (index, taskId, userUuid) {
+            	this.$Modal.confirm({
+                    content: `确认下线名称为${this.data[index].name}的调研吗?`,
                     onOk: () => {
-                    	this.data.splice(index, 1);
+                    	this.loadingState = true;
+		           		this.$axios.post('user/task/remove', qs.stringify({ taskId: taskId, userUuid: userUuid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].onlineStatus = 9;
+								this.loadingState = false;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: '操作失败' });
+							}
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
                     }
                 });
-            },*/
-            /*下线确认弹窗*/
-            offLine (index) {
-            	this.currentIndex = index;
-            	this.showOff = true;
             },
-            /*确认下线*/
-            ok () {
-            	this.$Message.info(this.currentIndex);
-            	this.$Message.info(this.reason);
-            }
+            /*上线*/
+            onLine (index, taskId, userUuid) {
+            	this.$Modal.confirm({
+                    content: `确认上线名称为${this.data[index].name}的调研吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+		           		this.$axios.post('user/task/online', qs.stringify({ taskId: taskId, userUuid: userUuid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].onlineStatus = 3;
+								this.loadingState = false;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: '操作失败' });
+							}
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+                });
+            },
+            /*数据处理*/
+           	handleData () {
+           		this.data.forEach((item, index) => {
+           			item.validFromTime = this.formatDate(item.validFromTime);
+           			item.validToTime = this.formatDate(item.validToTime);
+           			item.nickName = item.user.nickName;
+           			/*状态*/
+					switch(item.status)
+					{
+						case 1:
+							item.status = '已发布';
+							break;
+						case 2:
+							item.status = '已接单';
+							break;
+						case 3:
+							item.status = '已完成';
+							break;
+						case 4:
+							item.status = '已过期';
+							break;
+						case 5:
+							item.status = '已取消';
+							break;
+						default:
+							break;
+					}
+					/*是否公开*/
+					switch(item.isPublic)
+					{
+						case 1:
+							item.isPublic = '公开';
+							break;
+						case 2:
+							item.isPublic = '不公开';
+							break;
+						default:
+							break;
+					}
+           		});
+           	},
+            /*时间格式化*/
+			formatDate (timestamp) {
+				let date = new Date(timestamp);
+		        let Y = date.getFullYear() + '-';
+		        let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+		        let D = (	date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+		        let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+		        let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+		        let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+		        return Y+M+D+h+m+s;
+			}
+		},
+		mounted: function () {
+			this.loadList(1);
 		}
 	}
 </script>
 
-<style>
+<style scoped>
+	.btn-group {
+		margin-bottom: 10px;
+		margin-right: 20px;
+		width: 100%;
+	}
+	.searchBox {
+		float: right;
+		width: 280px;
+	}
+	.page {
+		float: right;
+		margin-top: 20px;
+	}
 </style>
