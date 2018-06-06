@@ -2,12 +2,12 @@
 	<div>
 		<ButtonGroup size="small" class="btn-group">
 			<!--<Button type="primary" @click="add">新增</Button>-->
-			<Select size="small" class="selectType" v-model="defaultType" @on-change="typeChange(defaultType)">
+			<!--<Select size="small" class="selectType" v-model="defaultType" @on-change="typeChange(defaultType)">
 				<Option value="test1">全部</Option>
 				<Option value="test2">运营人员</Option>
 				<Option value="test3">普通用户</Option>
-			</Select>
-			<Input class="searchBox" size="small" v-model="searchContent" placeholder="要搜索的uuid或昵称">
+			</Select>-->
+			<Input class="searchBox" size="small" v-model.trim="searchContent" placeholder="要搜索的uuid或昵称">
 				<Select v-model="searchType" slot="prepend" style="width: 80px">
 		            <Option value="uuid">uuid</Option>
 		            <Option value="nickName">昵称</Option>
@@ -35,8 +35,9 @@
 	        v-model="showRechargeConfirm"
 	        title="确认充值INB"
 	        @on-ok="confirmRechargeSecond">
-	        	充值前INB数量: {{ beforeRecharge }}<br>
-	        	充值后INB数量: {{ afterRecharge }}
+	        	<p style="font-size: 18px;">充值的INB数量: {{ inbNumber }}</p>
+	        	<p style="font-size: 18px;">充值前INB数量: {{ beforeRecharge }}</p>
+	        	<p style="font-size: 18px;">充值后INB数量: {{ afterRecharge }}</p>
 	    </Modal>
 	</div>
 </template>
@@ -115,10 +116,14 @@
                                     },
                                     on: {
                                         click: () => {
-                                            this.remove(params.index)
+                                        	if (params.row.certificationType == '已下线') {
+                                        		this.$Notice.warning({ title: '该用户已下线' });
+                                        	} else {
+                                        		this.remove(params.index);
+                                        	}
                                         }
                                     }
-                                }, '删除')
+                                }, '拉黑')
                             ]);
                     	}
                     }
@@ -134,8 +139,8 @@
 				currentIndex: '',			//当前操作的索引
 				inbNumber: '',				//新增INB数量
 				walletType: '1',			//钱包类型
-				beforeRecharge: '10',			//充值前INB数量
-				afterRecharge: '20'			//充值后INB数量
+				beforeRecharge: '',			//充值前INB数量
+				afterRecharge: ''			//充值后INB数量
 			}
 		},
 		methods: {
@@ -144,6 +149,9 @@
 				this.data.forEach((item, index) => {
 					item.createdTime = this.formatDate(item.createdTime);
 					item.registerTime = this.formatDate(item.registerTime);
+					if (item.inviteUser) {
+						item.inviteUserUuid = item.inviteUser.uuid;
+					}
 					switch(item.certificationType)
 					{
 						case 1:	
@@ -161,8 +169,13 @@
 						case 5:
 							item.certificationType = '企业';
 							break;
+						case 88:
+							item.certificationType = '已下线';
+							break;
+						case 99:
+							item.certificationType = '运营人员';
+							break;
 						default: 
-							item.certificationType = '未知';
 							break;
 					}
 					switch(item.emailVerified)
@@ -182,13 +195,12 @@
                 this.$Modal.success({
                     title: `${this.data[index].userName}的其它信息`,
                     content: `真实姓名：${this.data[index].name}<br>
-                    		密码：${this.data[index].password}<br>
-                    		头像：${this.data[index].headImageUrl}<br>
+                    		头像：<img src="${this.data[index].headImageUrl}" style="width: 30px;vertical-align: text-top;"><br>
                     		电话号码：${this.data[index].phoneNubmer}<br>
                     		邮箱：${this.data[index].email}<br>
                     		邮箱激活状态：${this.data[index].emailVerified}<br>
                     		邀请码：${this.data[index].invitationCode}<br>
-                    		邀请人id：${this.data[index].invitedByUserId}<br>
+                    		邀请人uuid: ${this.data[index].inviteUserUuid}<br>
                     		注册时间：${this.data[index].registerTime}<br>
                     		eth钱包：${this.data[index].ethWalletAddress}<br>
                     		btc钱包：${this.data[index].btcWalletAddress}<br>
@@ -200,10 +212,10 @@
                     		eos充值地址id：${this.data[index].eosExchangeAddressId}<br>`
                 })
            },
-            /*删除*/
+            /*拉黑*/
             remove (index) {
                 this.$Modal.confirm({
-                    content: `确认删除昵称为${this.data[index].nickName}的用户吗?`,
+                    content: `确认拉黑昵称为${this.data[index].nickName}的用户吗?`,
                     onOk: () => {
                     	let userUuid = this.data[index].uuid;
                     	this.loadingState = true;
@@ -211,10 +223,11 @@
 		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 						.then((response) => {
 							if(response.data.isSuccessful){
-								this.data.splice(index, 1);
+								this.data[index].certificationType = '已下线';
 								this.loadingState = false;
 								this.$Notice.success({ title: '操作成功' });
 							} else {
+								this.loadingState = false;
 								this.$Notice.error({ title: '操作失败' });
 							}
 			        	})
@@ -231,6 +244,7 @@
            	},
            	/*充值*/
            	recharge (index) {
+           		this.inbNumber = '';
                	this.showRecharge = true;
                	this.currentIndex = index;
            	},
@@ -254,6 +268,7 @@
 						this.loadingState = false;
 						this.$Notice.success({ title: '操作成功' });
 					} else {
+						this.loadingState = false;
 						this.$Notice.error({ title: '操作失败' });
 					}
 	        	})
@@ -310,7 +325,7 @@
 				let date = new Date(timestamp);
 		        let Y = date.getFullYear() + '-';
 		        let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
-		        let D = (	date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+		        let D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
 		        let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
 		        let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
 		        let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();

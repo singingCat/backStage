@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<ButtonGroup size="small" class="btn-group">
-			<Input class="searchBox" size="small" v-model="searchContent" placeholder="要搜索的内容">
+			<Input class="searchBox" size="small" v-model.trim="searchContent" placeholder="要搜索的内容">
 				<Select v-model="searchType" slot="prepend" style="width: 100px">
 		            <Option value="uuid">分析师uuid</Option>
 		            <Option value="nickName">分析师昵称</Option>
@@ -43,7 +43,8 @@
                     },
                     {
                         title: '每份奖励',
-                        key: 'rewardInb'
+                        key: 'rewardInb',
+                        sortable: true
                     },
                     {
                         title: '请求时间',
@@ -54,7 +55,17 @@
                     {
                         title: '要求详情',
                         key: 'description',
-                        width: 200
+                        render: (h, params) => {
+	                        return h('Poptip', {
+	                            props: {
+	                                trigger: 'hover',
+	                                content: params.row.description,
+	                                placement: 'bottom'
+	                            }
+	                        }, [
+	                            h('Tag', params.row.description)
+	                        ]);
+	                    }
                     },
                     {
                     	title: '操作',
@@ -98,7 +109,11 @@
                                     on: {
                                         click: () => {
                                         	if (params.row.onlineStatus == 3) {
-                                        		this.offLine(params.index, params.row.uid, params.row.user.uuid);
+                                        		if (params.row.acceptRequestNumber > 0) {
+                                        			this.$Notice.warning({ title: '已被接单,不能下线' });
+                                        		} else {
+                                        			this.offLine(params.index, params.row.uid, params.row.user.uuid);
+                                        		}
                                         	} else {
                                         		this.onLine(params.index, params.row.uid, params.row.user.uuid);
                                         	}
@@ -148,7 +163,6 @@
            		}
            		this.$axios.get(url)
 				.then((response) => {
-					console.log(response.data);
 					if(response.data.isSuccessful){
 						this.data = response.data.data.rows;
 						this.total = parseInt(response.data.data.total);
@@ -171,19 +185,22 @@
            	},
             /*下线*/
             offLine (index, taskId, userUuid) {
+            	let adminUuid = localStorage.adminUuid;
             	this.$Modal.confirm({
                     content: `确认下线名称为${this.data[index].name}的调研吗?`,
                     onOk: () => {
                     	this.loadingState = true;
-		           		this.$axios.post('user/task/remove', qs.stringify({ taskId: taskId, userUuid: userUuid }),
+		           		this.$axios.post('user/task/remove', qs.stringify({ taskId: taskId, userUuid: userUuid, adminUuid: adminUuid }),
 		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 						.then((response) => {
+							console.log(response.data);
 							if(response.data.isSuccessful){
 								this.data[index].onlineStatus = 9;
 								this.loadingState = false;
 								this.$Notice.success({ title: '操作成功' });
 							} else {
 								this.$Notice.error({ title: '操作失败' });
+								this.loadingState = false;
 							}
 			        	})
 			        	.catch((error) => {
@@ -195,11 +212,12 @@
             },
             /*上线*/
             onLine (index, taskId, userUuid) {
+            	let adminUuid = localStorage.adminUuid;
             	this.$Modal.confirm({
                     content: `确认上线名称为${this.data[index].name}的调研吗?`,
                     onOk: () => {
                     	this.loadingState = true;
-		           		this.$axios.post('user/task/online', qs.stringify({ taskId: taskId, userUuid: userUuid }),
+		           		this.$axios.post('user/task/online', qs.stringify({ taskId: taskId, userUuid: userUuid, adminUuid: adminUuid }),
 		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 						.then((response) => {
 							if(response.data.isSuccessful){
@@ -220,9 +238,15 @@
             /*数据处理*/
            	handleData () {
            		this.data.forEach((item, index) => {
-           			item.validFromTime = this.formatDate(item.validFromTime);
-           			item.validToTime = this.formatDate(item.validToTime);
-           			item.nickName = item.user.nickName;
+           			if (item.validFromTime) {
+           				item.validFromTime = this.formatDate(item.validFromTime);
+           			}
+           			if (item.validToTime) {
+           				item.validToTime = this.formatDate(item.validToTime);
+           			}
+           			if (item.nickName) {
+           				item.nickName = item.user.nickName;
+           			}
            			/*状态*/
 					switch(item.status)
 					{

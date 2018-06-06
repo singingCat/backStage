@@ -29,6 +29,7 @@
 				if (name == 'login') {	//如为登出则清除cookie和localStorage
 					this.cookieHandler.removeCookie('token');
 					this.storageHandler.removeStorage('nickName');
+					this.storageHandler.removeStorage('adminUuid');
 				}
 				this.$router.push({ name: name })
 			}

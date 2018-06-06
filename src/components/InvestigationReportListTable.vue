@@ -2,7 +2,7 @@
 	<div>
 		<ButtonGroup size="small" class="btn-group">
 			<Button type="primary" @click="add">新增</Button>
-			<Input class="searchBox" size="small" v-model="searchContent" placeholder="要搜索的内容">
+			<Input class="searchBox" size="small" v-model.trim="searchContent" placeholder="要搜索的内容">
 				<Select v-model="searchType" slot="prepend" style="width: 100px">
 		            <Option value="uuid">分析师uuid</Option>
 		            <Option value="nickName">分析师昵称</Option>
@@ -88,7 +88,11 @@
                                     on: {
                                         click: () => {
                                             if (params.row.onlineStatus == 3) {
-                                        		this.offLine(params.index, params.row.uid);
+                                            	if (params.row.certificationType == '已下线') {
+	                                        		this.$Notice.warning({ title: '该用户已下线' });
+	                                        	} else {
+	                                        		this.offLine(params.index, params.row.uid);
+	                                        	}
                                         	} else {
                                         		this.onLine(params.index, params.row.uid);
                                         	}
@@ -182,8 +186,9 @@
 						case 5:
 							item.certificationType = '企业';
 							break;
+						case 88:
+							item.certificationType = '已下线';
 						default: 
-							item.certificationType = '未知';
 							break;
            			}
            			/*状态*/
@@ -273,7 +278,7 @@
             },
             /*新增*/
             add () {
-				this.$Message.info('新增')
+				this.$router.push({ path: 'reportEdit' });
 			},
 			/*时间格式化*/
 			formatDate (timestamp) {

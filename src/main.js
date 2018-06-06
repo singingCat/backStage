@@ -89,6 +89,7 @@ axios.interceptors.response.use(
                     // 这里写清除token的代码
                     Vue.prototype.cookieHandler.removeCookie('token');
                     Vue.prototype.storageHandler.removeStorage('nickName');
+                    Vue.prototype.storageHandler.removeStorage('adminUuid');
                     console.log('token过期');
                     router.replace({
                         path: 'login',

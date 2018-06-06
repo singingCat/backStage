@@ -2,8 +2,8 @@
   	<div class="layout">
 	    <Layout :style="{minHeight: '100vh'}">
         	<Sider collapsible :collapsed-width="78" v-model="isCollapsed">
-	        	<Menu :open-names="['1', '2', '3', '4', '5']" :active-name="currentMenu" theme="dark" width="auto" :class="menuitemClasses" @on-select="onChange">
-		            <Submenu name="1">
+	        	<Menu :open-names="[openNames]" :active-name="currentMenu" accordion theme="dark" width="auto" :class="menuitemClasses" @on-select="onChange">
+		            <Submenu name="coin">
 			            <template slot="title">
 			            	<Icon type="social-bitcoin"></Icon>
 			            	<span>数币管理</span>
@@ -29,7 +29,7 @@
 			            	<span>空投信息</span>
 			            </MenuItem>-->
 		            </Submenu>
-		            <Submenu name="2">
+		            <Submenu name="user">
 			            <template slot="title">
 			            	<Icon type="person"></Icon>
 			            	<span>用户管理</span>
@@ -47,7 +47,7 @@
 			            	<span>用户认证</span>
 			            </MenuItem>-->
 		            </Submenu>
-		            <Submenu name="3">
+		            <Submenu name="investigation">
 			            <template slot="title">
 			            	<Icon type="ios-paper"></Icon>
 			            	<span>调研管理</span>
@@ -61,7 +61,7 @@
 			            	<span>报告列表</span>
 			            </MenuItem>
 		            </Submenu>
-		            <Submenu name="4">
+		            <Submenu name="purse">
 			            <template slot="title">
 			            	<Icon type="social-yen"></Icon>
 			            	<span>钱包管理</span>
@@ -71,7 +71,7 @@
 			            	<span>交易记录</span>
 			            </MenuItem>
 		            </Submenu>
-		            <Submenu name="5">
+		            <Submenu name="exchange">
 			            <template slot="title">
 			            	<Icon type="social-yen"></Icon>
 			            	<span>兑换管理</span>
@@ -80,15 +80,39 @@
 			            	<Icon type="android-clipboard"></Icon>
 			            	<span>兑换比例</span>
 			            </MenuItem>
+			            <MenuItem name="exchangeHistory">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>修改历史</span>
+			            </MenuItem>
 		            </Submenu>
-		            <Submenu name="6">
+		            <Submenu name="activity">
 			            <template slot="title">
-			            	<Icon type="social-yen"></Icon>
+			            	<Icon type="ios-game-controller-b"></Icon>
 			            	<span>活动管理</span>
 			            </template>
-			            <MenuItem name="invitationCode">
+			            <MenuItem name="ConfigurationList">
 			            	<Icon type="android-clipboard"></Icon>
-			            	<span>邀请码</span>
+			            	<span>配置列表</span>
+			            </MenuItem>
+		            </Submenu>
+		            <Submenu name="questionnaire">
+			            <template slot="title">
+			            	<Icon type="ios-game-controller-b"></Icon>
+			            	<span>问卷管理</span>
+			            </template>
+			            <MenuItem name="questionnaireList">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>问卷列表</span>
+			            </MenuItem>
+		            </Submenu>
+		            <Submenu name="airdrop">
+			            <template slot="title">
+			            	<Icon type="ios-game-controller-b"></Icon>
+			            	<span>空投管理</span>
+			            </template>
+			            <MenuItem name="airdropList">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>空投列表</span>
 			            </MenuItem>
 		            </Submenu>
 	        	</Menu>
@@ -120,6 +144,7 @@
 	const pathName = {
 		'coin': '数币管理',
 		'coinList': '数币信息',
+		'coinAdd': '新增数币',
 		'coinEdit': '数币编辑',
 		'user': '用户管理',
 		'userList': '基本信息',
@@ -137,7 +162,18 @@
 		'tradeRecordList': '交易记录列表',
 		'tradeRecordEdit': '交易记录编辑',
 		'exchange': '兑换管理',
-		'exchangeRatio': '兑换比例'
+		'exchangeRatio': '兑换比例',
+		'exchangeHistory': '修改历史',
+		'activity': '活动管理',
+		'ConfigurationList': '配置列表',
+		'questionnaire': '问卷管理',
+		'questionnaireList': '问卷列表',
+		'completedList': '已完成列表',
+		'questionShow': '问卷详情',
+		'completedDetail': '答卷明细',
+		'airdrop': '空投管理',
+		'airdropList': '空投列表',
+		'airdropEdit': '新增空投'
 	}
 	
 	export default {
@@ -146,6 +182,7 @@
 	  		return {
 	  			isCollapsed: false,
 	  			currentMenu: '',
+	  			openNames: '',
 	  			routeList: ''
 	  		}
 	  	},
@@ -153,8 +190,6 @@
 	  		if (!this.cookieHandler.getCookie('token')) {
 	  			this.$router.replace({name: 'login'});
 	  		}
-	  	},
-	  	mounted () {
 	  		this.linkage();
 	  		this.calcPath();
 	  	},
@@ -169,7 +204,9 @@
   				let route = this.$route.path;
 				let index = route.lastIndexOf('/') + 1;
 				let currentMenu = route.slice(index);
+				let openNames = route.split('/')[1];
 				this.currentMenu = currentMenu;
+				this.openNames = openNames;
   			},
   			calcPath () {	//动态面包屑路径处理
   				let currentPath = this.$route.path;
@@ -230,9 +267,6 @@
 	.collapsed-menu span{
 	    width: 0px;
 	    transition: width .2s ease;
-	}
-	.collapsed-menu .ivu-icon-ios-arrow-down {
-		display: none;
 	}
 	.collapsed-menu i{
 	    transform: translateX(5px);

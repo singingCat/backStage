@@ -80,10 +80,10 @@
                     	this.$axios.post('user/login', qs.stringify(this.formValidate), 
                     	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
                     	.then((response) => {
-                    		console.log(response);
                     		if (response.data.result == 'success') {
                     			this.cookieHandler.setCookie('token', response.data.token);	//设置token
 	                    		this.storageHandler.setStorage('nickName', response.data.currentUser.user.nickName);
+	                    		this.storageHandler.setStorage('adminUuid', response.data.currentUser.user.uuid);
 	                    		this.$Loading.finish();
 		                        this.$Message.success('登录成功!');
 		                        this.$router.push({
