@@ -8,7 +8,7 @@
 	        @on-ok="confirmModify">
 	        <p>奖励数量:</p>
 	        <Input v-model="reward"></Input>
-	  </Modal>
+	  	</Modal>
 	</div>
 </template>
 
@@ -61,7 +61,7 @@
                             ]);
                     	}
                     }
-                ],				
+                ],			
                 loadingState: false,			//表格读取状态
                 showModify: false,
                 reward: ''

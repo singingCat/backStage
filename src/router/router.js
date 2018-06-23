@@ -57,9 +57,8 @@ export const appRouter = [
 	    component: Main,
 	    children: [
 	        { path: 'coinList', title: '数币信息', name: 'coinList', meta: { requireAuth: true }, component: () => import('@/pages/CoinList.vue') },
-	        { path: 'coinAdd', title: '新增数币', name: 'coinAdd', meta: { requireAuth: true }, component: () => import('@/pages/CoinEdit.vue') },
-	        { path: 'coinEdit/:uid', title: '数币编辑', name: 'coinEdit', meta: { requireAuth: true }, component: () => import('@/pages/CoinEdit.vue') },
-	        { path: 'commentList', title: '评论列表', name: 'commentList', meta: { requireAuth: true }, component: () => import('@/pages/CommentList.vue') }
+	        { path: 'commentList', title: '评论列表', name: 'commentList', meta: { requireAuth: true }, component: () => import('@/pages/CommentList.vue') },
+	        { path: 'airdropList', title: '空投列表', name: 'airdropList', meta: { requireAuth: true }, component: () => import('@/pages/AirdropList.vue') },
 	    ]
    	},
    	{
@@ -71,7 +70,11 @@ export const appRouter = [
    		children: [
    			{ path: 'userList', title: '基本信息', name: 'userList', meta: { requireAuth: true }, component: () => import('@/pages/UserList.vue') },
    			{ path: 'userAdd', title: '新增用户', name: 'userAdd', meta: { requireAuth: true }, component: () => import('@/pages/UserEdit.vue') },
-   			{ path: 'UserEdit/:id', title: '基本信息', name: 'userEdit', meta: { requireAuth: true }, component: () => import('@/pages/UserEdit.vue') }
+   			{ path: 'UserEdit/:id', title: '基本信息', name: 'userEdit', meta: { requireAuth: true }, component: () => import('@/pages/UserEdit.vue') },
+   			{ path: 'waitAuthentication', title: '等待认证', name: 'waitAuthentication', meta: { requireAuth: true }, component: () => import('@/pages/WaitAuthentication.vue') },
+   			{ path: 'authenticated', title: '已认证', name: 'authenticated', meta: { requireAuth: true }, component: () => import('@/pages/Authenticated.vue') },
+   			{ path: 'systemPush', title: '系统推送', name: 'systemPush', meta: { requireAuth: true }, component: () => import('@/pages/SystemPush.vue') },
+   			{ path: 'systemPushCreate', title: '创建推送', name: 'systemPushCreate', meta: { requireAuth: true }, component: () => import('@/pages/SystemPushCreate.vue') }
    		]
    	},
    	{
@@ -84,7 +87,11 @@ export const appRouter = [
    			{ path: 'requestList', title: '请求列表', name: 'requestList', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationRequestList.vue') },
    			{ path: 'orderTakingList/:id', title: '接单列表', name: 'orderTakingList', meta: { requireAuth: true }, component: () => import('@/pages/OrderTakingList.vue') },
    			{ path: 'reportList', title: '报告列表', name: 'reportList', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationReportList.vue') },
-   			{ path: 'reportEdit', title: '新增报告', name: 'reportEdit', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationReportEdit.vue') }
+   			{ path: 'reportEdit', title: '新增报告', name: 'reportEdit', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationReportEdit.vue') },
+   			{ path: 'questionnaireList', title: '问卷管理', name: 'questionnaireList', meta: { requireAuth: true }, component: () => import('@/pages/QuestionnaireList.vue') },
+   			{ path: 'completedList/:id', title: '已完成列表', name: 'completedList', meta: { requireAuth: true }, component: () => import('@/pages/CompletedList.vue') },
+   			{ path: 'completedDetail/:uuid', title: '查看详情', name: 'completedDetail', meta: { requireAuth: true }, component: () => import('@/pages/CompletedDetail.vue') },
+   			{ path: 'questionShow/:uid', title: '查看问题', name: 'questionShow', meta: { requireAuth: true }, component: () => import('@/pages/QuestionShow.vue') }
    		]
    	},
    	{
@@ -104,7 +111,6 @@ export const appRouter = [
    		component: Main,
    		children: [
    			{ path: 'exchangeRatio', title: '兑换比例', name: 'exchangeRatio', meta: { requireAuth: true }, component: () => import('@/pages/ExchangeRatio.vue') },
-   			{ path: 'exchangeHistory', title: '修改历史', name: 'exchangeHistory', meta: { requireAuth: true }, component: () => import('@/pages/exchangeHistory.vue') }
    		]
    	},
    	{
@@ -114,28 +120,6 @@ export const appRouter = [
    		component: Main,
    		children: [
    			{ path: 'ConfigurationList', title: '配置列表', name: 'ConfigurationList', meta: { requireAuth: true }, component: () => import('@/pages/ConfigurationList.vue') }
-   		]
-   	},
-   	{
-   		path: '/questionnaire',
-   		name: 'questionnaire',
-   		title: '活动管理',
-   		component: Main,
-   		children: [
-   			{ path: 'questionnaireList', title: '问卷管理', name: 'questionnaireList', meta: { requireAuth: true }, component: () => import('@/pages/QuestionnaireList.vue') },
-   			{ path: 'completedList/:id', title: '已完成列表', name: 'completedList', meta: { requireAuth: true }, component: () => import('@/pages/CompletedList.vue') },
-   			{ path: 'completedDetail/:uuid', title: '查看详情', name: 'completedDetail', meta: { requireAuth: true }, component: () => import('@/pages/CompletedDetail.vue') },
-   			{ path: 'questionShow/:uid', title: '查看问题', name: 'questionShow', meta: { requireAuth: true }, component: () => import('@/pages/QuestionShow.vue') }
-   		]
-   	},
-   	{
-   		path: '/airdrop',
-   		name: 'airdrop',
-   		title: '空投管理',
-   		component: Main,
-   		children: [
-   			{ path: 'airdropList', title: '空投列表', name: 'airdropList', meta: { requireAuth: true }, component: () => import('@/pages/AirdropList.vue') },
-   			{ path: 'airdropEdit', title: '空投列表', name: 'airdropEdit', meta: { requireAuth: true }, component: () => import('@/pages/AirdropEdit.vue') }
    		]
    	}
 ]

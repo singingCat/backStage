@@ -12,7 +12,7 @@
 		</ButtonGroup>
 		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
 		<div class="page">
-			<Page :total="100" :current="1" show-total @on-change="changePage"></Page>
+			<Page :total="total" :current="1" show-total @on-change="changePage"></Page>
 		</div>
 	</div>
 </template>
@@ -36,6 +36,14 @@
                         key: 'nickName'
                     },
                     {
+                        title: '身份',
+                        key: 'identity'
+                    },
+                    {
+                        title: '身份类型',
+                        key: 'identityType'
+                    },
+                    {
                         title: '交易类型',
                         key: 'status'
                     },
@@ -48,35 +56,16 @@
                         key: 'taskId'
                     },
                     {
+                        title: '创建时间',
+                        key: 'createTime'
+                    },
+                    {
                         title: '交易时间',
-                        key: 'orderTime',
-                        width: 150
+                        key: 'orderTime'
                     },
                     {
                         title: '经办人',
                         key: 'agent'
-                    },
-                    {
-                    	title: '操作',
-                    	align: 'center',
-                    	render: (h, params) => {
-                    		return h('div', [
-                    			h('Button', {
-                                    props: {
-                                        type: 'success',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.show(params.index)
-                                        }
-                                    }
-                                }, '查看')
-                            ]);
-                    	}
                     }
                 ],
                 data: [],
@@ -87,16 +76,6 @@
 			}
 		},
 		methods: {
-			/*查看*/
-			show (index) {
-                this.$Modal.success({
-                    title: `${this.data[index].name}的主要信息`,
-                    content: `用户名：${this.data[index].name}<br>
-                			创建时间：${this.data[index].createTime}<br>
-                			身份：${this.data[index].identity}<br>
-                			身份类型：${this.data[index].identityType}`
-                })
-           	},
            	/*获取列表*/
            	loadList (page) {
            		this.loadingState = true;
@@ -110,7 +89,7 @@
 				.then((response) => {
 					if(response.data.isSuccessful){
 						this.data = response.data.data.rows;
-						this.total = parseInt(response.data.data.total);
+						this.total = parseInt(response.data.data.records);
 						this.handleData();
 						this.loadingState = false;
 					}

@@ -1,16 +1,11 @@
 <template>
 	<div>
 		<ButtonGroup size="small" class="btn-group">
-			<!--<Button type="primary" @click="add">新增</Button>-->
-			<!--<Select size="small" class="selectType" v-model="defaultType" @on-change="typeChange(defaultType)">
-				<Option value="test1">全部</Option>
-				<Option value="test2">运营人员</Option>
-				<Option value="test3">普通用户</Option>
-			</Select>-->
 			<Input class="searchBox" size="small" v-model.trim="searchContent" placeholder="要搜索的uuid或昵称">
 				<Select v-model="searchType" slot="prepend" style="width: 80px">
 		            <Option value="uuid">uuid</Option>
 		            <Option value="nickName">昵称</Option>
+		            <Option value="invitationCode">邀请码</Option>
 		        </Select>
 				<Button slot="append" icon="search" @click="search"></Button>
 			</Input>
@@ -52,32 +47,67 @@
 					{
 						type: 'index',
 						width: 60,
+						fixed: 'left',
 						align: 'center'
 					},
 					{
                         title: 'uuid',
-                        key: 'uuid'
+                        key: 'uuid',
+                        width: 150
                    },
                     {
                         title: '昵称',
-                        key: 'nickName'
+                        key: 'nickName',
+                        width: 150
+                    },
+                    {
+                    	title: '头像',
+                    	key: 'headImageUrl',
+                    	width: 80,
+                    	render: (h,params) => {
+                    		return h('Img', {
+                    			attrs: {
+                    				src: params.row.headImageUrl,
+                    				style: 'width: 30px;'
+                    			}
+                    		})
+                    	}
                     },
                     {
                         title: 'inb数量',
-                        key: 'inbNumber'
+                        key: 'inbNumber',
+                        width: 100
                     },
                     {
-                        title: '创建时间',
-                        key: 'createdTime'
+                        title: '注册时间',
+                        key: 'registerTime',
+                        width: 150
                     },
                     {
                         title: '身份类型',
-                        key: 'certificationType'
+                        key: 'certificationType',
+                        width: 100
+                    },
+                    {
+                    	title: '邀请码',
+                    	key: 'invitationCode',
+                    	width: 100
+                    },
+                    {
+                    	title: '邮箱',
+                    	key: 'email',
+                    	width: 150
+                    },
+                    {
+                    	title: '邮箱激活状态',
+                    	key: 'emailVerified',
+                    	width: 120
                     },
                     {
                     	title: '操作',
                     	key: 'action',
-                    	width: 220,
+                    	width: 160,
+                    	fixed: 'right',
                     	align: 'center',
                     	render: (h, params) => {
                     		return h('div', [
@@ -193,15 +223,10 @@
 			/*查看*/
 			show (index) {
                 this.$Modal.success({
-                    title: `${this.data[index].userName}的其它信息`,
+                    title: `${this.data[index].nickName}的其它信息`,
                     content: `真实姓名：${this.data[index].name}<br>
-                    		头像：<img src="${this.data[index].headImageUrl}" style="width: 30px;vertical-align: text-top;"><br>
                     		电话号码：${this.data[index].phoneNubmer}<br>
-                    		邮箱：${this.data[index].email}<br>
-                    		邮箱激活状态：${this.data[index].emailVerified}<br>
-                    		邀请码：${this.data[index].invitationCode}<br>
                     		邀请人uuid: ${this.data[index].inviteUserUuid}<br>
-                    		注册时间：${this.data[index].registerTime}<br>
                     		eth钱包：${this.data[index].ethWalletAddress}<br>
                     		btc钱包：${this.data[index].btcWalletAddress}<br>
                     		neo钱包：${this.data[index].neoWalletAddress}<br>
@@ -269,7 +294,7 @@
 						this.$Notice.success({ title: '操作成功' });
 					} else {
 						this.loadingState = false;
-						this.$Notice.error({ title: '操作失败' });
+						this.$Notice.error({ title: response.data.message });
 					}
 	        	})
 	        	.catch((error) => {
@@ -284,10 +309,12 @@
 				.then((response) => {
 					if (response.data.isSuccessful) {
 						this.data = response.data.data.rows;
-						this.total = response.data.data.total;
+						this.total = response.data.data.records;
 						this.handleData();
-						this.loadingState = false;
+					} else {
+						this.$Notice.error({ title: response.data.message });
 					}
+					this.loadingState = false;
 	        	})
 	        	.catch((error) => {
 	        		console.log(error);
@@ -312,8 +339,10 @@
 						this.data = response.data.data.rows;
 						this.total = response.data.data.total;
 						this.handleData();
-						this.loadingState = false;
+					} else {
+						this.$Notice.error({ title: response.data.message });
 					}
+					this.loadingState = false;
 	        	})
 	        	.catch((error) => {
 	        		console.log(error);

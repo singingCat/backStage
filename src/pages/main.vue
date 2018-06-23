@@ -12,22 +12,10 @@
 			            	<Icon type="information-circled"></Icon>
 			            	<span>数币信息</span>
 			            </MenuItem>
-			            <!--<MenuItem name="comment">
-			            	<Icon type="chatbubbles"></Icon>
-			            	<span>评论管理</span>
+			            <MenuItem name="airdropList">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>空投列表</span>
 			            </MenuItem>
-			            <MenuItem name="team">
-			            	<Icon type="ios-people"></Icon>
-			            	<span>团队管理</span>
-			            </MenuItem>
-			            <MenuItem name="publicOffering">
-			            	<Icon type="social-yen"></Icon>
-			            	<span>公募信息</span>
-			            </MenuItem>
-			            <MenuItem name="airDrop">
-			            	<Icon type="plane"></Icon>
-			            	<span>空投信息</span>
-			            </MenuItem>-->
 		            </Submenu>
 		            <Submenu name="user">
 			            <template slot="title">
@@ -38,14 +26,18 @@
 			            	<Icon type="happy"></Icon>
 			            	<span>基本信息</span>
 			            </MenuItem>
-			            <!--<MenuItem name="systemPush">
+			            <MenuItem name="waitAuthentication">
+			            	<Icon type="ios-body"></Icon>
+			            	<span>等待认证</span>
+			            </MenuItem>
+			            <MenuItem name="authenticated">
+			            	<Icon type="ios-body"></Icon>
+			            	<span>已认证</span>
+			            </MenuItem>
+			            <MenuItem name="systemPush">
 			            	<Icon type="ios-paperplane"></Icon>
 			            	<span>系统推送</span>
 			            </MenuItem>
-			            <MenuItem name="userAuthentication">
-			            	<Icon type="ios-body"></Icon>
-			            	<span>用户认证</span>
-			            </MenuItem>-->
 		            </Submenu>
 		            <Submenu name="investigation">
 			            <template slot="title">
@@ -59,6 +51,10 @@
 			            <MenuItem name="reportList">
 			            	<Icon type="ios-list"></Icon>
 			            	<span>报告列表</span>
+			            </MenuItem>
+			            <MenuItem name="questionnaireList">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>问卷列表</span>
 			            </MenuItem>
 		            </Submenu>
 		            <Submenu name="purse">
@@ -80,10 +76,6 @@
 			            	<Icon type="android-clipboard"></Icon>
 			            	<span>兑换比例</span>
 			            </MenuItem>
-			            <MenuItem name="exchangeHistory">
-			            	<Icon type="android-clipboard"></Icon>
-			            	<span>修改历史</span>
-			            </MenuItem>
 		            </Submenu>
 		            <Submenu name="activity">
 			            <template slot="title">
@@ -93,26 +85,6 @@
 			            <MenuItem name="ConfigurationList">
 			            	<Icon type="android-clipboard"></Icon>
 			            	<span>配置列表</span>
-			            </MenuItem>
-		            </Submenu>
-		            <Submenu name="questionnaire">
-			            <template slot="title">
-			            	<Icon type="ios-game-controller-b"></Icon>
-			            	<span>问卷管理</span>
-			            </template>
-			            <MenuItem name="questionnaireList">
-			            	<Icon type="android-clipboard"></Icon>
-			            	<span>问卷列表</span>
-			            </MenuItem>
-		            </Submenu>
-		            <Submenu name="airdrop">
-			            <template slot="title">
-			            	<Icon type="ios-game-controller-b"></Icon>
-			            	<span>空投管理</span>
-			            </template>
-			            <MenuItem name="airdropList">
-			            	<Icon type="android-clipboard"></Icon>
-			            	<span>空投列表</span>
 			            </MenuItem>
 		            </Submenu>
 	        	</Menu>
@@ -144,12 +116,8 @@
 	const pathName = {
 		'coin': '数币管理',
 		'coinList': '数币信息',
-		'coinAdd': '新增数币',
-		'coinEdit': '数币编辑',
 		'user': '用户管理',
 		'userList': '基本信息',
-		'userAdd': '新增用户',
-		'userEdit': '用户编辑',
 		'commentList': '评论列表',
 		'investigation': '调研管理',
 		'requestList': '请求列表',
@@ -163,7 +131,6 @@
 		'tradeRecordEdit': '交易记录编辑',
 		'exchange': '兑换管理',
 		'exchangeRatio': '兑换比例',
-		'exchangeHistory': '修改历史',
 		'activity': '活动管理',
 		'ConfigurationList': '配置列表',
 		'questionnaire': '问卷管理',
@@ -171,9 +138,13 @@
 		'completedList': '已完成列表',
 		'questionShow': '问卷详情',
 		'completedDetail': '答卷明细',
+		'questionList': '问题列表',
 		'airdrop': '空投管理',
 		'airdropList': '空投列表',
-		'airdropEdit': '新增空投'
+		'waitAuthentication': '等待认证',
+		'authenticated': '已认证',
+		'systemPush': '系统推送',
+		'systemPushCreate': '创建推送'
 	}
 	
 	export default {

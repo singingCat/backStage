@@ -13,7 +13,7 @@
 		</ButtonGroup>
 		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
 		<div class="page">
-			<Page :total="100" :current="1" show-total @on-change="changePage"></Page>
+			<Page :total="total" :current="1" show-total @on-change="changePage"></Page>
 		</div>
 	</div>
 </template>
@@ -105,6 +105,7 @@
                 ],
                 loadingState: true,			//表格读取状态
                 data: [],					//渲染的数据
+                total: 0,
                 currentIndex: '',			//当前索引
                 searchType: 'uuid',			//检索类型
                 searchContent: ''			//检索内容
@@ -145,7 +146,7 @@
 				.then((response) => {
 					if(response.data.isSuccessful){
 						this.data = response.data.data.rows;
-						this.total = parseInt(response.data.data.total);
+						this.total = parseInt(response.data.data.records);
 						this.handleData();
 						this.loadingState = false;
 					}

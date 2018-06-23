@@ -27,34 +27,80 @@
 					{
 						type: 'index',
 						width: 60,
+						fixed: 'left',
 						align: 'center'
 					},
                     {
                         title: 'uid',
-                        key: 'uid'
+                        key: 'uid',
+                        width: 60
                     },
                     {
-                        title: '请求企业',
-                        key: 'nickName'
+                        title: '货币名',
+                        key: 'coinName',
+                        width: 100
                     },
                     {
                         title: '调研名称',
-                        key: 'name'
+                        key: 'name',
+                        width: 100
+                    },
+                    {
+                    	title: '调研状态',
+                    	key: 'status',
+                    	width: 100
+                    },
+                    {
+                    	title: '是否公开',
+                    	key: 'isPublic',
+                    	width: 100
                     },
                     {
                         title: '每份奖励',
                         key: 'rewardInb',
-                        sortable: true
+                        width: 100
                     },
                     {
-                        title: '请求时间',
+                        title: '开始时间',
                         key: 'validFromTime',
                         sortable: true,
                         width: 150
                     },
                     {
+                        title: '结束时间',
+                        key: 'validToTime',
+                        sortable: true,
+                        width: 150
+                    },
+                    {
+                    	title: '所需语言',
+                    	key: 'language',
+                    	width: 100
+                    },
+                    {
+                    	title: '冻结的Inb数量',
+                    	key: 'frozenInb',
+                    	width: 100
+                    },
+                    {
+                    	title: '需分析师',
+                    	key: 'needAnalystNumber',
+                    	width: 100
+                    },
+                    {
+                    	title: '附带免费报告数',
+                    	key: 'freeReportNumber',
+                    	width: 90
+                    },
+                    {
+                    	title: '接单数',
+                    	key: 'acceptRequestNumber',
+                    	width: 80
+                    },
+                    {
                         title: '要求详情',
                         key: 'description',
+                        width: 100,
                         render: (h, params) => {
 	                        return h('Poptip', {
 	                            props: {
@@ -69,24 +115,11 @@
                     },
                     {
                     	title: '操作',
-                    	width: 240,
+                    	width: 150,
+                    	fixed: 'right',
                     	align: 'center',
                     	render: (h, params) => {
                     		return h('div', [
-                    			h('Button', {
-                                    props: {
-                                        type: 'success',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.show(params.index)
-                                        }
-                                    }
-                                }, '请求详情'),
                                 h('Button', {
                                     props: {
                                         type: 'info',
@@ -132,22 +165,6 @@
 			}
 		},
 		methods: {
-			/*查看*/
-			show (index) {
-                this.$Modal.success({
-                    title: `${this.data[index].requestTitle}的主要信息`,
-                    content: `货币名：${this.data[index].coin.name}<br>
-                    		调研状态：${this.data[index].status}<br>
-                    		所需要语言：${this.data[index].language}<br>
-                    		是否公开: ${this.data[index].isPublic}<br>
-                    		冻结的Inb数量: ${this.data[index].frozenInb}<br>
-                    		请求调研开始时间: ${this.data[index].validFromTime}<br>
-                    		请求调研结束时间: ${this.data[index].validToTime}<br>
-                    		需要多少分析师: ${this.data[index].needAnalystNumber}<br>
-                    		附带免费报告数: ${this.data[index].freeReportNumber}<br>
-                    		接单数: ${this.data[index].acceptRequestNumber}`
-                })
-            },
             /*查看接单详情*/
            	toReceiptList (index) {
            		this.$router.push({ path: 'orderTakingList/' + this.data[index].uid, query: { name: this.data[index].name, taskAcceptList: this.data[index].taskAcceptList } })
@@ -165,7 +182,7 @@
 				.then((response) => {
 					if(response.data.isSuccessful){
 						this.data = response.data.data.rows;
-						this.total = parseInt(response.data.data.total);
+						this.total = parseInt(response.data.data.records);
 						this.handleData();
 						this.loadingState = false;
 					}
@@ -238,6 +255,7 @@
             /*数据处理*/
            	handleData () {
            		this.data.forEach((item, index) => {
+           			item.coinName = item.coin.name;
            			if (item.validFromTime) {
            				item.validFromTime = this.formatDate(item.validFromTime);
            			}

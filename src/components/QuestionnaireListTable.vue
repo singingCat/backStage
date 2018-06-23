@@ -1,9 +1,114 @@
 <template>
 	<div>
-		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
-		<div class="page">
-			<Page :total="total" :current="1" show-total @on-change="changePage"></Page>
+		<ButtonGroup size="small" class="btn-group">
+			<Button type="primary" @click="questionnaireAdd">新增问卷</Button>
+		</ButtonGroup>
+		<Table border highlight-row :columns="columns" :data="data" :loading="loadingState" @on-current-change="changeQuestionnaire"></Table>
+		<div style="width: 100%;">
+			<div class="page">
+				<Page :total="total" :current="1" show-total @on-change="changePage"></Page>
+			</div>
 		</div>
+		<div class="text-center" style="margin-top: 100px">问题列表</div>
+		<ButtonGroup size="small" class="btn-group">
+			<Button type="primary" @click="questionAdd">新增问题</Button>
+		</ButtonGroup>
+		<Table border highlight-row :columns="questionColumns" :data="questionData" :loading="questionLoadingState" @on-current-change="changequestion"></Table>
+		<div class="text-center" style="margin-top: 50px">选项列表</div>
+		<ButtonGroup size="small" class="btn-group">
+			<Button type="primary" @click="optionAdd">新增选项</Button>
+		</ButtonGroup>
+		<Table border :columns="optionColumns" :data="optionData" :loading="optionLoadingState"></Table>
+		<Modal
+	        v-model="addQuestionnaireShow"
+	        title="新增问卷"
+	        @on-ok="addQuestionnaireConfirm">
+	        <Form :model="questionnaireItem" :label-width="100">
+		        <FormItem label="问卷名称:">
+		            <Input v-model="questionnaireItem.name" placeholder="请输入问卷名称"></Input>
+		        </FormItem>
+		        <FormItem label="创建人uuid:">
+		            <Input v-model="questionnaireItem.founderUuid" placeholder="请输入创建人uuid"></Input>
+		        </FormItem>
+		        <FormItem label="描述:">
+		            <Input v-model="questionnaireItem.description" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入描述"></Input>
+		        </FormItem>
+		        <FormItem label="类型:">
+		            <Select v-model="questionnaireItem.type">
+		            	<Option value="1">用户调研</Option>
+		            	<Option value="2">企业问询</Option>
+		            </Select>
+		        </FormItem>
+		        <FormItem label="币种:">
+		            <Input v-model="questionnaireItem.coinName" placeholder="请输入币种"></Input>
+		        </FormItem>
+		        <FormItem label="开始时间:">
+		            <DatePicker type="date" placeholder="开始时间" v-model="questionnaireItem.validFromTime"></DatePicker>
+		        </FormItem>
+		        <FormItem label="结束时间:">
+		            <DatePicker type="date" placeholder="结束时间" v-model="questionnaireItem.validToTime"></DatePicker>
+		        </FormItem>
+		        <FormItem label="奖励INB:">
+		            <Input v-model="questionnaireItem.rewardInb" placeholder="请输入奖励INB"></Input>
+		        </FormItem>
+		        <FormItem label="总数:">
+		            <Input v-model="questionnaireItem.totalNumber" placeholder="请输入总数"></Input>
+		        </FormItem>
+		        <FormItem label="reportID(选填):">
+		            <Input v-model="questionnaireItem.reportId" placeholder="请输入所在报告ID"></Input>
+		        </FormItem>
+			</Form>
+	    </Modal>
+		<Modal
+	        v-model="addQuestionShow"
+	        title="新增问题"
+	        @on-ok="addQuestionConfirm">
+	        <p style="margin-bottom: 20px;">问卷名: {{currentQuestionnaire}}</p>
+	        <p>问题名称:</p>
+	        <Input v-model="questionName"></Input>
+	        <p>类型:</p>
+	        <Select v-model="questionType">
+	        	<Option value="1">单选</Option>
+	        	<Option value="2">多选</Option>
+	        	<Option value="3">填空</Option>
+	        </Select>
+	        <p>排序:</p>
+	        <Input v-model="questionOrder"></Input>
+	    </Modal>
+		<Modal
+	        v-model="editQuestionShow"
+	        title="编辑问题"
+	        @on-ok="editQuestionConfirm">
+	        <p>问题名称:</p>
+	        <Input v-model="questionName"></Input>
+	        <p>类型:</p>
+	        <Select v-model="questionType">
+	        	<Option value="1">单选</Option>
+	        	<Option value="2">多选</Option>
+	        	<Option value="3">填空</Option>
+	        </Select>
+	        <p>排序:</p>
+	        <Input v-model="questionOrder"></Input>
+	    </Modal>
+	    <Modal
+	        v-model="addOptionShow"
+	        title="新增选项"
+	        @on-ok="addOptionConfirm">
+	        <p style="margin-bottom: 20px;">问题名: {{currentQuestion}}</p>
+	        <p>选项名称:</p>
+	        <Input v-model="optionName"></Input>
+	        <p>排序:</p>
+	        <Input v-model="optionOrder"></Input>
+	    </Modal>
+	    <Modal
+	        v-model="editOptionShow"
+	        title="编辑选项"
+	        @on-ok="editOptionConfirm">
+	        <p>选项名称:</p>
+	        <Input v-model="optionName"></Input>
+	        <p>排序:</p>
+	        <Input v-model="optionOrder"></Input>
+	    </Modal>
 	</div>
 </template>
 
@@ -17,40 +122,59 @@
 					{
 						type: 'index',
 						width: 60,
+						fixed: 'left',
 						align: 'center'
 					},
 					{
 	                    title: 'uid',
-	                    key: 'uid'
+	                    key: 'uid',
+	                    width: 60
 	                },
 	                {
 	                    title: '问卷名称',
-	                    key: 'name'
+	                    key: 'name',
+	                    width: 200
+	                },
+	                {
+	                    title: '创建人id',
+	                    key: 'userId',
+	                    width: 100
 	                },
 	                {
 	                	title: '发起人',
-	                    key: 'publisher'
+	                    key: 'publisher',
+	                    width: 200
+	                },
+	                {
+	                	title: '币种',
+	                    key: 'coinName',
+	                    width: 80
 	                },
 	                {
 	                	title: '开始时间',
-	                    key: 'validFromTime'
+	                    key: 'validFromTime',
+	                    width: 150
 	                },
 	                {
 	                	title: '结束时间',
-	                    key: 'validToTime'
+	                    key: 'validToTime',
+	                    width: 150
 	                },
 	                {
 	                	title: '奖励INB',
-	                    key: 'rewardInb'
+	                    key: 'rewardInb',
+	                    width: 100
 	                },
 	                {
 	                	title: '剩余',
-	                    key: 'surplus'
+	                    key: 'surplus',
+	                    width: 80
 	                },
 	                {
                     	title: '操作',
                     	key: 'action',
                     	width: 180,
+                    	fixed: 'right',
                     	align: 'center',
                     	render: (h, params) => {
                     		return h('div', [
@@ -85,7 +209,143 @@
                 ],
                 data: [],
                 loadingState: false,	//表格读取状态
-                total: 0
+                total: 0,
+                questionnaireItem: {
+					name: '',			//问卷名称
+					founderUuid: '',	//创建人uuid
+					description: '',	//描述
+					type: '',			//类型
+					coinName: '',		//币种
+					validFromTime: '',	//开始时间
+					validToTime: '',	//结束时间
+					rewardInb: '',		//奖励INB
+					totalNumber: '',	//总数
+					reportId: ''		//所在报告ID
+				},
+                questionColumns: [
+					{
+						type: 'index',
+						width: 60,
+						align: 'center'
+					},
+					{
+	                    title: 'uid',
+	                    key: 'uid'
+	                },
+	                {
+	                    title: '问题名称',
+	                    key: 'title'
+	                },
+	                {
+	                	title: '类型',
+                        key: 'optionType',
+                        render: (h, params) => {
+                        	let optionType = params.row.optionType;
+                        	switch(optionType){
+                        		case 1: optionType = '单选'; break;
+                        		case 2: optionType = '多选'; break;
+                        		case 3: optionType = '填空'; break;
+                        		default: break;
+                        	}
+                        	return h('div', optionType);
+                        }
+	                },
+	                {
+	                    title: '排序',
+	                    key: 'showOrder'
+	                },
+	                {
+                    	title: '操作',
+                    	key: 'action',
+                    	align: 'center',
+                    	render: (h, params) => {
+                    		return h('div', [
+                    			h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                        	this.questionName = params.row.title;
+                                        	this.questionType = params.row.optionType + '';
+                                        	this.questionOrder = params.row.showOrder;
+                                            this.editQuestionShow = true;
+                                        }
+                                    }
+                                }, '编辑')
+                            ]);
+                    	}
+                    }
+                ],
+                questionData: [],
+                questionLoadingState: false,
+                optionColumns: [
+					{
+						type: 'index',
+						width: 60,
+						align: 'center'
+					},
+					{
+	                    title: 'uid',
+	                    key: 'uid'
+	                },
+	                {
+	                    title: '选项名称',
+	                    key: 'content'
+	                },
+	                {
+	                    title: '排序',
+	                    key: 'showOrder'
+	                },
+	                {
+                    	title: '操作',
+                    	key: 'action',
+                    	align: 'center',
+                    	render: (h, params) => {
+                    		return h('div', [
+                    			h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                        	this.currentOptionUid = params.row.uid;
+                                        	this.optionName = params.row.content;
+                                        	this.optionOrder = params.row.showOrder;
+                                            this.editOptionShow = true;
+                                        }
+                                    }
+                                }, '编辑')
+                            ]);
+                    	}
+                    }
+                ],
+                optionData: [],
+                optionLoadingState: false,
+                addQuestionnaireShow: false,
+                addQuestionShow: false,
+                addOptionShow: false,
+                editQuestionShow: false,
+                editOptionShow: false,
+                questionnaireId: '',
+                questionUid: '',
+                questionName: '',
+                questionType: '',
+                questionOrder: '',
+                optionName: '',
+                optionOrder: '',
+                currentQuestionType: '',
+                currentOptionUid: '',
+                currentQuestionnaire: '',
+                currentQuestion: ''
 			}
 		},
 		methods: {
@@ -97,7 +357,7 @@
 				.then((response) => {
 					if (response.data.isSuccessful) {
 						this.data = response.data.data.rows;
-						this.total = response.data.data.total;
+						this.total = response.data.data.records;
 						this.handleData();
 						this.loadingState = false;
 					}
@@ -123,6 +383,7 @@
 			handleData () {
 				this.data.forEach((item, index) => {
 					item.publisher = item.publishUser.nickName;
+					item.coinName = item.coin.symbolName;
 					item.validFromTime = this.formatDate(item.validFromTime);
 					item.validToTime = this.formatDate(item.validToTime);
 					item.surplus = item.doneNumber + '/' + item.totalNumber;
@@ -138,6 +399,206 @@
 		        let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
 		        let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
 		        return Y+M+D+h+m+s;
+			},
+			/*点击问卷*/
+			changeQuestionnaire (currentRow, oldCurrentRow) {	//currentRow:当前行数据;oldCurrentRow:上一条数据
+				let questionnaireId = currentRow.uid;
+				this.questionnaireId = questionnaireId;
+				this.questionUid = '';
+				this.currentQuestionType = '';
+				this.currentQuestionnaire = currentRow.name;
+				this.loadQuestionList(questionnaireId);
+			},
+			/*点击问题*/
+			changequestion (currentRow, oldCurrentRow) {
+				let questionId = currentRow.uid
+				this.questionUid = questionId;
+				this.currentQuestionType = currentRow.optionType;
+				this.currentQuestion = currentRow.title;
+				this.loadOptionList(questionId);
+			},
+			/*获取问题列表*/
+			loadQuestionList (questionnaireId) {
+				this.questionLoadingState = true;
+				this.$axios.get('user/question/list?questionnaireId=' + questionnaireId)
+				.then((response) => {
+					if (response.data.isSuccessful) {
+						this.optionData = [];
+						this.questionData = response.data.data;
+						this.questionLoadingState = false;
+					}
+	        	})
+	        	.catch((error) => {
+	        		this.questionLoadingState = false;
+	        	})
+			},
+			/*获取选项列表*/
+			loadOptionList (questionId) {
+				this.optionLoadingState = true;
+				this.$axios.get('user/option/list?questionId=' + questionId)
+				.then((response) => {
+					if (response.data.isSuccessful) {
+						this.optionData = response.data.data;
+						this.optionLoadingState = false;
+					}
+	        	})
+	        	.catch((error) => {
+	        		this.optionLoadingState = false;
+	        	})
+			},
+			/*新增问卷*/
+           	questionnaireAdd () {
+           		this.questionnaireItem = {
+           			name: '',
+					description: '',
+					type: '',
+					validFromTime: '',
+					validToTime: '',
+					rewardInb: '',
+					totalNumber: '',
+					reportId: ''
+           		}
+           		this.addQuestionnaireShow = true;
+           	},
+			/*新增问题*/
+			questionAdd () {
+				if (this.questionnaireId == '') {
+					this.$Notice.warning({ title: '请先选择问卷' });
+				} else {
+					this.questionName = '';
+					this.questionType = '';
+					this.questionOrder = '';
+					this.addQuestionShow = true;
+				}
+			},
+			/*新增选项*/
+			optionAdd () {
+				if (this.questionUid == '') {
+					this.$Notice.warning({ title: '请先选择问题' });
+				} else if (this.currentQuestionType == 3) {
+					this.$Notice.warning({ title: '填空题不能添加选项' });
+				} else {
+					this.optionName = '';
+					this.optionOrder = '';
+					this.addOptionShow = true;
+				}
+			},
+			/*新增问卷确认*/
+			addQuestionnaireConfirm () {
+				this.loadingState = true;
+				this.questionnaireItem['adminUuid'] = localStorage.adminUuid;
+            	this.questionnaireItem.validFromTime = parseInt(new Date(this.questionnaireItem.validFromTime).getTime());
+            	this.questionnaireItem.validToTime = parseInt(new Date(this.questionnaireItem.validToTime).getTime());
+            	
+            	this.$axios.post('user/questionnaire/add', qs.stringify(this.questionnaireItem),
+           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+				.then((response) => {
+					if(response.data.isSuccessful){
+						this.$Notice.success({ title: '操作成功' });
+						this.loadList(1);
+					} else {
+						this.$Notice.error({ title: response.data.message });
+						this.loadingState = false;
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.loadingState = false;
+	        	})
+			},
+			/*新增问题确认*/
+			addQuestionConfirm () {
+				this.questionLoadingState = true;
+				let formItem = {};
+				formItem['adminUuid'] = localStorage.adminUuid;
+				formItem['questionnaireId'] = this.questionnaireId;
+				formItem['title'] = this.questionName;
+				formItem['optionType'] = this.questionType;
+				formItem['showOrder'] = this.questionOrder;
+				
+				this.$axios.post('user/question/add', qs.stringify(formItem), 
+            	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+				.then((response) => {
+					console.log(response.data);
+					if (response.data.isSuccessful) {
+						this.questionLoadingState = false;
+						this.$Notice.success({ title: '操作成功' });
+						this.loadQuestionList(this.questionnaireId);
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.questionLoadingState = false;
+	        	})
+			},
+			/*编辑问题确认*/
+			editQuestionConfirm () {
+				this.questionLoadingState = true;
+				let formItem = {};
+				formItem['adminUuid'] = localStorage.adminUuid;
+				formItem['title'] = this.questionName;
+				formItem['optionType'] = this.questionType;
+				formItem['showOrder'] = this.questionOrder;
+				formItem['uid'] = this.questionUid;
+				
+           		this.$axios.post('user/question/update', qs.stringify(formItem), 
+            	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+				.then((response) => {
+					if (response.data.isSuccessful) {
+						this.$Notice.success({ title: '操作成功' });
+						this.loadQuestionList(this.questionnaireId);
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.questionLoadingState = false;
+	        	})
+			},
+			/*新增选项确认*/
+			addOptionConfirm () {
+				this.optionLoadingState = true;
+				let formItem = {};
+				formItem['adminUuid'] = localStorage.adminUuid;
+				formItem['questionId'] = this.questionUid;
+				formItem['content'] = this.optionName;
+				formItem['showOrder'] = this.optionOrder;
+				formItem['optionType'] = this.currentQuestionType;
+				
+				this.$axios.post('user/option/add', qs.stringify(formItem), 
+            	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+				.then((response) => {
+					if (response.data.isSuccessful) {
+						this.$Notice.success({ title: '操作成功' });
+						this.loadOptionList(this.questionUid);
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.questionLoadingState = false;
+	        	})
+			},
+			/*编辑选项确认*/
+			editOptionConfirm () {
+				this.optionLoadingState = true;
+				let formItem = {};
+				formItem['adminUuid'] = localStorage.adminUuid;
+				formItem['uid'] = this.currentOptionUid;
+				formItem['content'] = this.optionName;
+				formItem['showOrder'] = this.optionOrder;
+				formItem['optionType'] = this.currentQuestionType;
+				
+				this.$axios.post('user/option/update', qs.stringify(formItem), 
+            	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+				.then((response) => {
+					if (response.data.isSuccessful) {
+						this.$Notice.success({ title: '操作成功' });
+						this.loadOptionList(this.questionUid);
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.questionLoadingState = false;
+	        	})
 			}
 		},
 		mounted () {
@@ -147,8 +608,19 @@
 </script>
 
 <style scoped>
+	.btn-group {
+		margin-bottom: 10px;
+		margin-right: 20px;
+		width: 100%;
+	}
+	.btn-group button.ivu-btn {
+		float: right;
+	}
 	.page {
 		float: right;
 		margin-top: 20px;
+	}
+	.text-center {
+		text-align: center;
 	}
 </style>

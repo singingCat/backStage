@@ -1,15 +1,17 @@
 <template>
-	<div>
+	<!--<div>
 		<InvitationCode :configList="configList"></InvitationCode>
 		<Registration :configList="configList" style="margin-top: 20px;"></Registration>
-	</div>
+	</div>-->
+	<ConfigurationListTable></ConfigurationListTable>
 </template>
 
 <script>
-	import InvitationCode from '../components/InvitationCode'
-	import Registration from '../components/Registration'
+	import ConfigurationListTable from '../components/ConfigurationListTable'
+	/*import InvitationCode from '../components/InvitationCode'
+	import Registration from '../components/Registration'*/
 	
-	export default {
+	/*export default {
 		data () {
 			return {
 				configList: []
@@ -36,6 +38,11 @@
 		},
 		mounted () {
 			this.initData();
+		}
+	}*/
+	export default {
+		components: {
+			ConfigurationListTable
 		}
 	}
 </script>

@@ -1,10 +1,13 @@
 <template>
 	<div>
-		1美元 = {{data[0].usdToInbRate}}Inb
+		1美元 = {{ratio}}Inb
 		<ButtonGroup size="small" class="btn-group">
 			<Button type="info" @click="modifyRatio">修改比例</Button>
 		</ButtonGroup>
 		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
+		<div class="page">
+			<Page :total="total" :current="1" show-total @on-change="changePage"></Page>
+		</div>
 		<Modal
 	        v-model="showModify"
 	        title="兑换比例修改"
@@ -28,6 +31,10 @@
 						align: 'center'
 					},
 					{
+	                    title: 'uid',
+	                    key: 'uid'
+	                },
+					{
 	                    title: '数币名称',
 	                    render: (h, params) => {
 	                    	return h('span', 'ETH')
@@ -40,43 +47,51 @@
 	                    }
 	                },
 	                {
-	                	title: '兑换Inb数量',
-	                    key: 'exchangeRateEth'
+	                    title: '兑换比例',
+	                    key: 'exchangeRate'
+	                },
+	                {
+	                    title: '价格',
+	                    key: 'price'
 	                },
 	                {
 	                	title: '更新日期',
-	                    key: 'updatedTime'
+	                    key: 'updatedTime',
+	                    render: (h, params) => {
+	                    	return h('span', this.formatDate(params.row.updatedTime));
+	                    }
 	                }
                 ],
-                data: [{usdToInbRate: '-'}],
+                data: [],
                 loadingState: false,	//表格读取状态
-                ratio: 100,
+                ratio: '',
+                total: 0,
                 showModify: false,
                 currentRatio: ''
 			}
 		},
 		methods: {
-			initData () {
+			loadList (page) {
 				this.loadingState = true;
-				this.$axios.get('user/insight/info')
+				this.$axios.get('user/insight/info?page='+page+'&pageSize=10')
 				.then((response) => {
 					if (response.data.isSuccessful) {
-						let arr = [];
-						arr.push(response.data.data);
-						this.data = arr;
-						this.handleData();
+						this.ratio = response.data.data.config.usdToInbRate;
+						this.total = response.data.data.pager.records;
+						this.data = response.data.data.pager.rows;
+					} else {
 						this.loadingState = false;
+						this.$Notice.error({ title: response.data.message });
 					}
+					this.loadingState = false;
 	        	})
 	        	.catch((error) => {
 	        		console.log(error);
+	        		this.loadingState = false;
 	        	})
 			},
-			/*处理数据*/
-			handleData () {
-				this.data.forEach((item, index) => {
-					item.updatedTime = this.formatDate(item.updatedTime);
-				});
+			changePage (page) {
+				this.loadList(page);
 			},
 			modifyRatio () {
 				this.currentRatio = '';
@@ -94,7 +109,7 @@
 		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 						.then((response) => {
 							if(response.data.isSuccessful){
-								this.data[0].usdToInbRate = this.currentRatio;
+								this.ratio = this.currentRatio;
 								this.loadingState = false;
 								this.$Notice.success({ title: '操作成功' });
 							} else {
@@ -122,7 +137,7 @@
 			}
 		},
 		created () {
-			this.initData();
+			this.loadList(1);
 		}
 	}
 </script>
@@ -133,5 +148,9 @@
 	}
 	.btn-group button.ivu-btn {
 		margin-left: 20px !important;
+	}
+	.page {
+		float: right;
+		margin-top: 20px;
 	}
 </style>

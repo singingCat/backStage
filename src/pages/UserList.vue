@@ -6,11 +6,6 @@
 	import UserListTable from '../components/UserListTable'
 	
 	export default {
-		data () {
-			return {
-				
-			}
-		},
 		components: {
 			UserListTable
 		}
