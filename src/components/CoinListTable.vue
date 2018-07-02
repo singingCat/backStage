@@ -77,7 +77,41 @@
 		<Modal
 	        v-model="addAirdropShow"
 	        title="新增空投"
-	        @on-ok="addAirdropconfirm">
+	        @on-ok="addAirdropConfirm">
+	        <Form :model="airdropFormItem" :label-width="100">
+		        <FormItem label="数币名称:">
+		            <Input v-model="airdropFormItem.coinName" placeholder="请输入数币名称"></Input>
+		        </FormItem>
+		        <FormItem label="奖励数量:">
+		            <Input v-model="airdropFormItem.reward" placeholder="请输入奖励数量"></Input>
+		        </FormItem>
+		        <FormItem label="奖励类型:">
+		            <Select v-model="airdropFormItem.getType">
+						<Option value="1">新用户</Option>
+						<Option value="2">社区</Option>
+						<Option value="3">发款</Option>
+						<Option value="4">KYC</Option>
+						<Option value="5">其它</Option>
+					</Select>
+		        </FormItem>
+		        <FormItem label="开始时间:">
+		            <DatePicker type="date" placeholder="开始时间" v-model="airdropFormItem.validFromTime"></DatePicker>
+		        </FormItem>
+		        <FormItem label="结束时间:">
+		            <DatePicker type="date" placeholder="结束时间" v-model="airdropFormItem.validToTime"></DatePicker>
+		        </FormItem>
+		        <FormItem label="空投描述:">
+		            <Input v-model="airdropFormItem.description" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入空投描述"></Input>
+		        </FormItem>
+		        <FormItem label="空投入口:">
+		            <Input v-model="airdropFormItem.entrance" placeholder="请输入空投入口"></Input>
+		        </FormItem>
+			</Form>
+	    </Modal>
+	    <Modal
+	        v-model="editAirdropShow"
+	        title="编辑空投"
+	        @on-ok="editAirdropConfirm">
 	        <Form :model="airdropFormItem" :label-width="100">
 		        <FormItem label="数币名称:">
 		            <Input v-model="airdropFormItem.coinName" placeholder="请输入数币名称"></Input>
@@ -127,14 +161,9 @@
 					{
 						title: 'uid',
 						key: 'uid',
-						width: 60
+						width: 70
 					},
-                    {
-                        title: '数币名称',
-                        key: 'symbolName',
-                        width: 100
-                    },
-                    {
+					{
                     	title: 'Logo',
                     	key: 'logoUrl',
                     	width: 80,
@@ -146,6 +175,11 @@
                     			}
                     		})
                     	}
+                    },
+                    {
+                        title: '数币名称',
+                        key: 'symbolName',
+                        width: 100
                     },
                     {
                         title: '状态',
@@ -163,6 +197,11 @@
                         	return h('div', status);
                         }
                     },
+                    {
+                   		title: '价格',
+                   		key: 'price',
+                   		width: 80
+                   	},
                    	{
                    		title: '流通量',
                    		key: 'circulatingSupply',
@@ -177,6 +216,32 @@
                    		title: '总供应量',
                    		key: 'totalSupply',
                    		width: 120
+                   	},
+                   	{
+                   		title: 'BTC价格',
+                   		key: 'priceBtc',
+                   		width: 100
+                   	},
+                   	{
+                   		title: 'ETH价格',
+                   		key: 'priceEth',
+                   		width: 100
+                   	},
+                   	{
+                   		title: '数币简介',
+                   		key: 'introduction',
+                   		width: 100,
+                   		render: (h, params) => {
+	                        return h('Poptip', {
+	                            props: {
+	                                trigger: 'hover',
+	                                content: params.row.introduction,
+	                                placement: 'bottom'
+	                            }
+	                        }, [
+	                            h('Tag', params.row.introduction)
+	                        ]);
+	                    }
                    	},
                     {
                     	title: '操作',
@@ -257,7 +322,7 @@
                                         	if (params.row.status == 4) {
                                         		this.$Notice.warning({ title: '已上交易所不能编辑' });
                                         	} else {
-                                        		this.edit(params.index, params.row)
+                                        		this.edit(params.index, params.row);
                                         	}
                                         }
                                     }
@@ -269,7 +334,7 @@
                                     },
                                     on: {
                                         click: () => {
-                                            this.remove(params.index)
+                                            this.remove(params.index);
                                         }
                                     }
                                 }, '删除')
@@ -335,7 +400,19 @@
                     {
                         title: '奖励类型',
                         key: 'getType',
-                        width: 100
+                        width: 100,
+                        render: (h, params) => {
+                        	let getType = params.row.getType;
+                        	switch(getType){
+                        		case 1: getType = '新用户'; break;
+								case 2: getType = '社区'; break;
+								case 3: getType = '发款'; break;
+								case 4: getType = 'KYC'; break;
+								case 5: getType = '其它'; break;
+								default: break;
+                        	}
+                        	return h('div', getType);
+                        }
                     },
                     {
                         title: '空投详情',
@@ -385,11 +462,25 @@
                     {
                     	title: '操作',
                     	key: 'action',
-                    	width: 140,
+                    	width: 160,
                     	fixed: 'right',
                     	align: 'center',
                     	render: (h, params) => {
                     		return h('div', [
+                    			h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.editAirdrop(params.row);
+                                        }
+                                    }
+                                }, '编辑'),
                                 h('Button', {
                                     props: {
                                         type: 'info',
@@ -432,12 +523,15 @@
 				airdropLoadingState: false,
 				airdropTotal: 0,
 				addAirdropShow: false,
+				editAirdropShow: false,
 				airdropFormItem: {
 					coinName: '',		//数币名称
 					reward: '',			//奖励数量
 					getType: '',		//奖励类型
 					validFromTime: '',	//开始时间
 					validToTime: '',	//结束时间
+					description: '',
+					entrance: ''
 				}
 			}
 		},
@@ -585,26 +679,6 @@
 					item.coinName = item.coin.symbolName;
 					item.validFromTime = this.formatDate(item.validFromTime);
 					item.validToTime = this.formatDate(item.validToTime);
-					switch(item.getType)
-					{
-						case 1:
-							item.getType = '新用户';
-							break;
-						case 2:
-							item.getType = '社区';
-							break;
-						case 3:
-							item.getType = '发款';
-							break;
-						case 4:
-							item.getType = 'KYC';
-							break;
-						case 5:
-							item.getType = '其它';
-							break;
-						default:
-							break;
-					}
 				})
 			},
 			/*分页*/
@@ -651,12 +725,14 @@
 					reward: '',
 					getType: '',
 					validFromTime: '',
-					validToTime: ''
+					validToTime: '',
+					description: '',
+					entrance: ''
            		}
 				this.addAirdropShow = true;
 			},
 			/*确认添加*/
-			addAirdropconfirm () {
+			addAirdropConfirm () {
             	this.airdropFormItem['adminUuid'] = localStorage.adminUuid;
             	this.airdropFormItem.validFromTime = new Date(this.airdropFormItem.validFromTime).getTime();
             	this.airdropFormItem.validToTime = new Date(this.airdropFormItem.validToTime).getTime();
@@ -670,6 +746,42 @@
 					} else {
 						this.airdropLoadingState = false;
 						this.$Notice.error({ title: response.data.message });
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.airdropLoadingState = false;
+	        	})
+			},
+			/*编辑空投*/
+			editAirdrop (row) {
+				this.airdropFormItem = {
+					uid: row.uid,
+           			coinName: row.coinName,
+					reward: row.reward,
+					getType: row.getType + '',
+					validFromTime: row.validFromTime,
+					validToTime: row.validToTime,
+					description: row.description,
+					entrance: row.entrance
+           		}
+				this.editAirdropShow = true;
+			},
+			/*确认编辑*/
+			editAirdropConfirm () {
+				this.airdropLoadingState = true;
+				this.airdropFormItem['validFromTime'] = parseInt(this.airdropFormItem['validFromTime'].getTime());
+				this.airdropFormItem['validToTime'] = parseInt(this.airdropFormItem['validToTime'].getTime());
+				
+				this.$axios.post('user/update/airdrop', qs.stringify(this.airdropFormItem),
+           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+				.then((response) => {
+					if(response.data.isSuccessful){
+						this.$Notice.success({ title: '操作成功' });
+						this.loadAirdropList(1);
+					} else {
+						this.$Notice.error({ title: response.data.message });
+						this.airdropLoadingState = false;
 					}
 	        	})
 	        	.catch((error) => {
@@ -694,7 +806,7 @@
 								this.airdropData[index].onlineStatus = 9;
 								this.$Notice.success({ title: '操作成功' });
 							} else {
-								this.$Notice.error({ title: '操作失败' });
+								this.$Notice.error({ title: response.data.message });
 							}
 							this.airdropLoadingState = false;
 			        	})

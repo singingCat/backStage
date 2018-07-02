@@ -12,10 +12,6 @@
 			            	<Icon type="information-circled"></Icon>
 			            	<span>数币信息</span>
 			            </MenuItem>
-			            <MenuItem name="airdropList">
-			            	<Icon type="android-clipboard"></Icon>
-			            	<span>空投列表</span>
-			            </MenuItem>
 		            </Submenu>
 		            <Submenu name="user">
 			            <template slot="title">
@@ -86,6 +82,10 @@
 			            	<Icon type="android-clipboard"></Icon>
 			            	<span>配置列表</span>
 			            </MenuItem>
+			            <MenuItem name="VersionList">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>版本号</span>
+			            </MenuItem>
 		            </Submenu>
 	        	</Menu>
         	</Sider>
@@ -144,7 +144,8 @@
 		'waitAuthentication': '等待认证',
 		'authenticated': '已认证',
 		'systemPush': '系统推送',
-		'systemPushCreate': '创建推送'
+		'systemPushCreate': '创建推送',
+		'VersionList': '版本号'
 	}
 	
 	export default {

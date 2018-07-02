@@ -39,7 +39,47 @@
 		            	<Option value="2">企业问询</Option>
 		            </Select>
 		        </FormItem>
-		        <FormItem label="币种:">
+		        <FormItem label="币种(选填):">
+		            <Input v-model="questionnaireItem.coinName" placeholder="请输入币种"></Input>
+		        </FormItem>
+		        <FormItem label="开始时间:">
+		            <DatePicker type="date" placeholder="开始时间" v-model="questionnaireItem.validFromTime"></DatePicker>
+		        </FormItem>
+		        <FormItem label="结束时间:">
+		            <DatePicker type="date" placeholder="结束时间" v-model="questionnaireItem.validToTime"></DatePicker>
+		        </FormItem>
+		        <FormItem label="奖励INB:">
+		            <Input v-model="questionnaireItem.rewardInb" placeholder="请输入奖励INB"></Input>
+		        </FormItem>
+		        <FormItem label="总数:">
+		            <Input v-model="questionnaireItem.totalNumber" placeholder="请输入总数"></Input>
+		        </FormItem>
+		        <FormItem label="reportID(选填):">
+		            <Input v-model="questionnaireItem.reportId" placeholder="请输入所在报告ID"></Input>
+		        </FormItem>
+			</Form>
+	    </Modal>
+	    <Modal
+	        v-model="editQuestionnaireShow"
+	        title="编辑问卷"
+	        @on-ok="editQuestionnaireConfirm">
+	        <Form :model="questionnaireItem" :label-width="100">
+		        <FormItem label="问卷名称:">
+		            <Input v-model="questionnaireItem.name" placeholder="请输入问卷名称"></Input>
+		        </FormItem>
+		        <FormItem label="创建人uuid:">
+		            <Input v-model="questionnaireItem.founderUuid" placeholder="请输入创建人uuid"></Input>
+		        </FormItem>
+		        <FormItem label="描述:">
+		            <Input v-model="questionnaireItem.description" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入描述"></Input>
+		        </FormItem>
+		        <FormItem label="类型:">
+		            <Select v-model="questionnaireItem.type">
+		            	<Option value="1">用户调研</Option>
+		            	<Option value="2">企业问询</Option>
+		            </Select>
+		        </FormItem>
+		        <FormItem label="币种(选填):">
 		            <Input v-model="questionnaireItem.coinName" placeholder="请输入币种"></Input>
 		        </FormItem>
 		        <FormItem label="开始时间:">
@@ -148,7 +188,14 @@
 	                {
 	                	title: '币种',
 	                    key: 'coinName',
-	                    width: 80
+	                    width: 80,
+	                    render: (h, params) => {
+	                    	if (params.row.coin) {
+	                    		return h('div', params.row.coin.symbolName);
+	                    	} else {
+	                    		return h('div', '');
+	                    	}
+	                    }
 	                },
 	                {
 	                	title: '开始时间',
@@ -173,7 +220,7 @@
 	                {
                     	title: '操作',
                     	key: 'action',
-                    	width: 180,
+                    	width: 240,
                     	fixed: 'right',
                     	align: 'center',
                     	render: (h, params) => {
@@ -197,12 +244,46 @@
                                         type: 'primary',
                                         size: 'small'
                                     },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
                                     on: {
                                         click: () => {
                                             this.toQuestionShow(params.row.uid, params.row.questions);
                                         }
                                     }
-                                }, '问卷详情')
+                                }, '问卷详情'),
+                                h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.editQuestionnaire(params.row);
+                                        }
+                                    }
+                                }, '编辑'),
+                                h('Button', {
+                                    props: {
+                                        type: params.row.onlineStatus == 3?'error':'warning',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click: () => {
+                                        	let adminUuid = parseInt(localStorage.adminUuid);
+                                        	
+                                        	if (params.row.onlineStatus == 3) {
+                                        		this.offLineQuestionnaire(params.index, params.row.uid, adminUuid);
+                                        	} else {
+                                        		this.onLineQuestionnaire(params.index, params.row.uid, adminUuid);
+                                        	}
+                                        }
+                                    }
+                                }, params.row.onlineStatus == 3?'下线':'上线')
                             ]);
                     	}
                     }
@@ -276,7 +357,18 @@
                                             this.editQuestionShow = true;
                                         }
                                     }
-                                }, '编辑')
+                                }, '编辑'),
+                                h('Button', {
+                                    props: {
+                                        type: 'error',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.removeQuestion(params.index, params.row.uid);
+                                        }
+                                    }
+                                }, '删除')
                             ]);
                     	}
                     }
@@ -323,7 +415,18 @@
                                             this.editOptionShow = true;
                                         }
                                     }
-                                }, '编辑')
+                                }, '编辑'),
+                                h('Button', {
+                                    props: {
+                                        type: 'error',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.removeOption(params.index, params.row.uid);
+                                        }
+                                    }
+                                }, '删除')
                             ]);
                     	}
                     }
@@ -333,6 +436,7 @@
                 addQuestionnaireShow: false,
                 addQuestionShow: false,
                 addOptionShow: false,
+                editQuestionnaireShow: false,
                 editQuestionShow: false,
                 editOptionShow: false,
                 questionnaireId: '',
@@ -349,7 +453,7 @@
 			}
 		},
 		methods: {
-			/*获取列表*/
+			/*获取问卷列表*/
            	loadList (page) {
            		this.loadingState = true;
            		this.$axios.post('user/questionnaire/lists', qs.stringify({ page: page, pageSize: 10 }), 
@@ -383,7 +487,6 @@
 			handleData () {
 				this.data.forEach((item, index) => {
 					item.publisher = item.publishUser.nickName;
-					item.coinName = item.coin.symbolName;
 					item.validFromTime = this.formatDate(item.validFromTime);
 					item.validToTime = this.formatDate(item.validToTime);
 					item.surplus = item.doneNumber + '/' + item.totalNumber;
@@ -450,8 +553,10 @@
            	questionnaireAdd () {
            		this.questionnaireItem = {
            			name: '',
+           			founderUuid: '',
 					description: '',
 					type: '',
+					coinName: '',
 					validFromTime: '',
 					validToTime: '',
 					rewardInb: '',
@@ -459,6 +564,50 @@
 					reportId: ''
            		}
            		this.addQuestionnaireShow = true;
+           	},
+           	/*编辑问卷*/
+           	editQuestionnaire (row) {
+           		let coinName = '';
+           		if (row.coin) {
+           			coinName = row.coin.symbolName;
+           		}
+           		this.questionnaireItem = {
+           			name: row.name,
+           			founderUuid: row.publishUser.uuid,
+					description: row.description,
+					coinName: coinName,
+					type: row.type + '',
+					validFromTime: row.validFromTime,
+					validToTime: row.validToTime,
+					rewardInb: row.rewardInb,
+					totalNumber: row.totalNumber,
+					reportId: row.reportId
+           		}
+           		this.editQuestionnaireShow = true;
+           	},
+           	/*编辑问卷确认*/
+           	editQuestionnaireConfirm () {
+           		this.loadingState = true;
+				this.questionnaireItem['adminUuid'] = localStorage.adminUuid;
+				this.questionnaireItem['uid'] = this.questionnaireId;
+            	this.questionnaireItem.validFromTime = parseInt(new Date(this.questionnaireItem.validFromTime).getTime());
+            	this.questionnaireItem.validToTime = parseInt(new Date(this.questionnaireItem.validToTime).getTime());
+            	
+            	this.$axios.post('user/questionnaire/update', qs.stringify(this.questionnaireItem),
+           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+				.then((response) => {
+					if(response.data.isSuccessful){
+						this.$Notice.success({ title: '操作成功' });
+						this.loadList(1);
+					} else {
+						this.$Notice.error({ title: response.data.message });
+						this.loadingState = false;
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.loadingState = false;
+	        	})
            	},
 			/*新增问题*/
 			questionAdd () {
@@ -493,6 +642,7 @@
             	this.$axios.post('user/questionnaire/add', qs.stringify(this.questionnaireItem),
            		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 				.then((response) => {
+					console.log(response.data);
 					if(response.data.isSuccessful){
 						this.$Notice.success({ title: '操作成功' });
 						this.loadList(1);
@@ -599,6 +749,106 @@
 	        		console.log(error);
 	        		this.questionLoadingState = false;
 	        	})
+			},
+			/*问卷下线*/
+			offLineQuestionnaire (index, questionnaireId, adminUuid) {
+				this.$Modal.confirm({
+                    content: `确认下线该问卷吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+		           		this.$axios.post('user/questionnaire/remove', qs.stringify({ questionnaireId: questionnaireId, adminUuid: adminUuid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].onlineStatus = 9;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.loadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+                });
+			},
+			/*问卷上线*/
+			onLineQuestionnaire (index, questionnaireId, adminUuid) {
+				this.$Modal.confirm({
+                    content: `确认上线该问卷吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+		           		this.$axios.post('user/questionnaire/online', qs.stringify({ questionnaireId: questionnaireId, adminUuid: adminUuid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].onlineStatus = 3;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.loadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+                });
+			},
+			/*问题删除*/
+			removeQuestion (index, uid) {
+				let adminUuid = localStorage.adminUuid;
+				
+				this.$Modal.confirm({
+					content: `确认删除该问题吗?`,
+					onOk: () => {
+						this.questionLoadingState = true;
+		           		this.$axios.post('user/question/delete', qs.stringify({ uid: uid, adminUuid: adminUuid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.questionData.splice(index, 1);
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.questionLoadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.questionLoadingState = false;
+			        	})
+					}
+				});
+			},
+			/*选项删除*/
+			removeOption (index, uid) {
+				let adminUuid = localStorage.adminUuid;
+				
+				this.$Modal.confirm({
+					content: `确认删除该选项吗?`,
+					onOk: () => {
+						this.optionLoadingState = true;
+		           		this.$axios.post('user/option/delete', qs.stringify({ uid: uid, adminUuid: adminUuid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.optionData.splice(index, 1);
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.optionLoadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.optionLoadingState = false;
+			        	})
+					}
+				});
 			}
 		},
 		mounted () {

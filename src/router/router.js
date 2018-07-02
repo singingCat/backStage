@@ -119,7 +119,8 @@ export const appRouter = [
    		title: '活动管理',
    		component: Main,
    		children: [
-   			{ path: 'ConfigurationList', title: '配置列表', name: 'ConfigurationList', meta: { requireAuth: true }, component: () => import('@/pages/ConfigurationList.vue') }
+   			{ path: 'ConfigurationList', title: '配置列表', name: 'ConfigurationList', meta: { requireAuth: true }, component: () => import('@/pages/ConfigurationList.vue') },
+   			{ path: 'VersionList', title: '版本号列表', name: 'VersionList', meta: { requireAuth: true }, component: () => import('@/pages/VersionList.vue') }
    		]
    	}
 ]

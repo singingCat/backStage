@@ -11,10 +11,10 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-    	'/api': {  
+    	'/api': {
 	        target: 'http://192.168.1.211:8080/inb-portal/',
 	        changeOrigin: true,  
-	        pathRewrite: {  
+	        pathRewrite: {
 	            '^/api': '/'  
 	        }  
 	    }

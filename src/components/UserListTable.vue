@@ -6,6 +6,7 @@
 		            <Option value="uuid">uuid</Option>
 		            <Option value="nickName">昵称</Option>
 		            <Option value="invitationCode">邀请码</Option>
+		            <Option value="ethWalletAddress">eth钱包</Option>
 		        </Select>
 				<Button slot="append" icon="search" @click="search"></Button>
 			</Input>
@@ -81,12 +82,29 @@
                     {
                         title: '注册时间',
                         key: 'registerTime',
-                        width: 150
+                        width: 150,
+                        render: (h, params) => {
+                        	return h('div', this.formatDate(params.row.registerTime));
+                        }
                     },
                     {
                         title: '身份类型',
                         key: 'certificationType',
-                        width: 100
+                        width: 100,
+                        render: (h, params) => {
+                        	let certificationType = params.row.certificationType;
+                        	switch(certificationType){
+                        		case 1:	certificationType = '没有认证'; break;
+								case 2: certificationType = '分析师'; break;
+								case 3: certificationType = '媒体'; break;
+								case 4: certificationType = '投资者'; break;
+								case 5: certificationType = '企业'; break;
+								case 88: certificationType = '已下线'; break;
+								case 99: certificationType = '运营人员'; break;
+								default: break;
+                        	}
+                        	return h('div', certificationType);
+                        }
                     },
                     {
                     	title: '邀请码',
@@ -101,7 +119,16 @@
                     {
                     	title: '邮箱激活状态',
                     	key: 'emailVerified',
-                    	width: 120
+                    	width: 120,
+                    	render: (h, params) => {
+                    		let emailVerified = params.row.emailVerified;
+                    		switch(emailVerified){
+                    			case 1: emailVerified = '未激活'; break;
+								case 2: emailVerified = '已激活'; break;
+								default: break;
+                    		}
+                    		return h('div', emailVerified);
+                    	}
                     },
                     {
                     	title: '操作',
@@ -174,59 +201,13 @@
 			}
 		},
 		methods: {
-			/*处理数据*/
-			handleData () {
-				this.data.forEach((item, index) => {
-					item.createdTime = this.formatDate(item.createdTime);
-					item.registerTime = this.formatDate(item.registerTime);
-					if (item.inviteUser) {
-						item.inviteUserUuid = item.inviteUser.uuid;
-					}
-					switch(item.certificationType)
-					{
-						case 1:	
-							item.certificationType = '没有认证';
-							break;
-						case 2:
-							item.certificationType = '分析师';
-							break;
-						case 3:
-							item.certificationType = '媒体';
-							break;
-						case 4:
-							item.certificationType = '投资者';
-							break;
-						case 5:
-							item.certificationType = '企业';
-							break;
-						case 88:
-							item.certificationType = '已下线';
-							break;
-						case 99:
-							item.certificationType = '运营人员';
-							break;
-						default: 
-							break;
-					}
-					switch(item.emailVerified)
-					{
-						case 1:
-							item.emailVerified = '未激活';
-							break;
-						case 2:
-							item.emailVerified = '已激活';
-							break;
-						default: item.emailVerified = '未知';
-					}
-				})
-			},
 			/*查看*/
 			show (index) {
                 this.$Modal.success({
                     title: `${this.data[index].nickName}的其它信息`,
                     content: `真实姓名：${this.data[index].name}<br>
                     		电话号码：${this.data[index].phoneNubmer}<br>
-                    		邀请人uuid: ${this.data[index].inviteUserUuid}<br>
+                    		邀请人uuid: ${this.data[index].inviteUser.uuid}<br>
                     		eth钱包：${this.data[index].ethWalletAddress}<br>
                     		btc钱包：${this.data[index].btcWalletAddress}<br>
                     		neo钱包：${this.data[index].neoWalletAddress}<br>
@@ -253,7 +234,7 @@
 								this.$Notice.success({ title: '操作成功' });
 							} else {
 								this.loadingState = false;
-								this.$Notice.error({ title: '操作失败' });
+								this.$Notice.error({ title: response.data.message });
 							}
 			        	})
 			        	.catch((error) => {
@@ -290,12 +271,11 @@
 				.then((response) => {
 					if(response.data.isSuccessful){
 						this.data[this.currentIndex].inbNumber += inbNumber;
-						this.loadingState = false;
 						this.$Notice.success({ title: '操作成功' });
 					} else {
-						this.loadingState = false;
 						this.$Notice.error({ title: response.data.message });
 					}
+					this.loadingState = false;
 	        	})
 	        	.catch((error) => {
 	        		console.log(error);
@@ -310,7 +290,6 @@
 					if (response.data.isSuccessful) {
 						this.data = response.data.data.rows;
 						this.total = response.data.data.records;
-						this.handleData();
 					} else {
 						this.$Notice.error({ title: response.data.message });
 					}
