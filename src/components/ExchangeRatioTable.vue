@@ -1,6 +1,6 @@
 <template>
 	<div>
-		1美元 = {{ratio}}Inb
+		1美元 = {{ratio}}INB
 		<ButtonGroup size="small" class="btn-group">
 			<Button type="info" @click="modifyRatio">修改比例</Button>
 		</ButtonGroup>
@@ -26,24 +26,25 @@
 			return {
 				columns: [
 					{
-						type: 'index',
-						width: 60,
-						align: 'center'
-					},
-					{
 	                    title: 'uid',
 	                    key: 'uid'
 	                },
 					{
 	                    title: '数币名称',
 	                    render: (h, params) => {
-	                    	return h('span', 'ETH')
+	                    	let coinType = params.row.coinType;
+	                    	switch (coinType) {
+	                    		case 1: coinType = 'ETH'; break;
+	                    		case 2: coinType = 'BTC'; break;
+	                    		default: break;
+	                    	}
+	                    	return h('div', coinType);
 	                    }
 	                },
 	                {
 	                    title: '交易单位',
 	                    render: (h, params) => {
-	                    	return h('span', 1)
+	                    	return h('div', 1);
 	                    }
 	                },
 	                {

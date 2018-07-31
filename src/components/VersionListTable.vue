@@ -19,7 +19,7 @@
 			</template>
 			<Upload
 				ref="upload2"
-				action="/api/user/appVersion/upload/ios"
+				action="user/appVersion/upload/ios"
 				:show-upload-list="false"
 				:on-success="uploadIosSuccess"
 				:on-error="uploadIosError"
@@ -28,7 +28,7 @@
 		    </Upload>
 			<Upload
 				ref="upload"
-				action="/api/user/appVersion/upload"
+				action="user/appVersion/upload"
 				:show-upload-list="false"
 				:on-success="uploadAndroidSuccess"
 				:on-error="uploadAndroidError"
@@ -37,6 +37,7 @@
 		        <Button type="primary" size="small">新增Android版本</Button>
 		    </Upload>
 			<Select size="small" class="selectType" v-model="defaultType" @on-change="typeChange()">
+				<Option value="">全部</Option>
 				<Option value="1">ios</Option>
 				<Option value="2">android</Option>
 			</Select>
@@ -72,11 +73,6 @@
 			return {
 				columns: [
 					{
-						type: 'index',
-						width: 60,
-						align: 'center'
-					},
-					{
                         title: 'app名',
                         key: 'appName'
                    },
@@ -85,7 +81,7 @@
                         key: 'versionName'
                     },
                     {
-                        title: '版本号',
+                        title: 'build',
                         key: 'versionCode'
                     },
                     {
@@ -161,8 +157,8 @@
                         width: 130,
                         render: (h, params) => {
 	                        const row = params.row;
-	                        const color = row.onlineStatus === 2 ? '#2db7f5' : row.onlineStatus === 3 ? '#f90' : '#ed3f14';
-	                        const text = row.onlineStatus === 2 ? '测试中' : row.onlineStatus === 3 ? '已上线' : '已下线';
+	                        const color = row.onlineStatus === 1 ? '#000' : row.onlineStatus === 2 ? '#2db7f5' : row.onlineStatus === 3 ? '#f90' : '#ed3f14';
+	                        const text = row.onlineStatus === 1 ? '未上线' : row.onlineStatus === 2 ? '测试中' : row.onlineStatus === 3 ? '已上线' : '已下线';
 	                        return h('Tag', {
 	                            props: {
 	                                type: 'dot',
@@ -174,13 +170,16 @@
                     {
                     	title: '操作',
                     	align: 'center',
-                    	width: 80,
+                    	width: 180,
                     	render: (h, params) => {
                     		return h('div', [
                     			h('Button', {
                                     props: {
-                                        type: 'info',
+                                        type: 'primary',
                                         size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
                                     },
                                     on: {
                                         click: () => {
@@ -188,7 +187,36 @@
                                             this.editVersion(params.row);
                                         }
                                     }
-                                }, '编辑')
+                                }, '编辑'),
+                                h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                        	this.test(params.index, params.row.uid);
+                                        }
+                                    }
+                                }, '测试'),
+                                h('Button', {
+                                    props: {
+                                        type: params.row.onlineStatus == 3?'error':'warning',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click: () => {
+                                        	if (params.row.onlineStatus == 3) {
+                                        		this.offLine(params.index, params.row.uid);
+                                        	} else {
+                                        		this.onLine(params.index, params.row.uid);
+                                        	}
+                                        }
+                                    }
+                                }, params.row.onlineStatus == 3?'下线':'上线')
                             ]);
                     	}
                     }
@@ -196,7 +224,7 @@
                 data: [],
                 loadingState: false,
                 total: 0,
-                defaultType: '1',
+                defaultType: '',
                 uploadList: [],
                 uploadList2: [],
                 editVersionShow: false,
@@ -304,6 +332,75 @@
 	        		console.log(error);
 	        		this.loadingState = false;
 	        	})
+			},
+			onLine (index, uid) {
+				this.$Modal.confirm({
+					content: `确认上线该版本吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+						this.$axios.post('user/appVersion/online', qs.stringify({ appVersionId: uid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].onlineStatus = 3;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.loadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+				});
+			},
+			offLine (index, uid) {
+				this.$Modal.confirm({
+					content: `确认下线该版本吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+						this.$axios.post('user/appVersion/offline', qs.stringify({ appVersionId: uid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].onlineStatus = 9;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.loadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+				});
+			},
+			test (index, uid) {
+				this.$Modal.confirm({
+					content: `确认将该版本改为测试吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+						this.$axios.post('user/appVersion/test', qs.stringify({ appVersionId: uid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].onlineStatus = 2;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.loadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+               });
 			}
 		},
 		mounted () {

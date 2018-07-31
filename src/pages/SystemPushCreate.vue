@@ -70,8 +70,7 @@
 		},
 		methods: {
 			confirm () {
-            	this.formItem['adminUuid'] = localStorage.adminUuid;
-            	
+				this.formItem['type'] = 2;
            		this.$axios.post('user/message/add/system', qs.stringify(this.formItem),
            		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 				.then((response) => {
@@ -87,12 +86,24 @@
 	        	})
 			},
 			test () {
-				alert('test');
+				this.formItem['type'] = 1;
+           		this.$axios.post('user/message/add/system', qs.stringify(this.formItem),
+           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+				.then((response) => {
+					if(response.data.isSuccessful){
+						this.$Notice.success({ title: '操作成功' });
+					} else {
+						this.$Notice.error({ title: response.data.message });
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        	})
 			}
 		}
 	}
 </script>
 
-<style scoped>
+<style>
 	
 </style>

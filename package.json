@@ -21,9 +21,11 @@
     "lodash": "^4.17.5",
     "vue": "^2.5.2",
     "vue-animate": "0.0.4",
+    "vue-froala-wysiwyg": "^2.8.4",
     "vue-resource": "^1.5.0",
     "vue-router": "^3.0.1",
-    "vue2-animate": "^1.0.4"
+    "vue2-animate": "^1.0.4",
+    "wangeditor": "^3.1.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

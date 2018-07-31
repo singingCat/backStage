@@ -23,11 +23,6 @@
 			return {
 				columns: [
 					{
-						type: 'index',
-						width: 60,
-						align: 'center'
-					},
-					{
                         title: 'uuid',
                         key: 'userUuid'
                     },

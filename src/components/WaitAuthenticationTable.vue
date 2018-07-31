@@ -1,10 +1,16 @@
 <template>
 	<div>
 		<ButtonGroup size="small" class="btn-group">
-			<Select size="small" class="selectType" v-model="defaultType" @on-change="typeChange(defaultType)">
-				<Option value="1">全部</Option>
-				<Option value="2">个人</Option>
-				<Option value="3">分析师</Option>
+			<!--<Select size="small" class="selectType" v-model="certificationType" @on-change="typeChange(certificationType)">
+				<Option value="">全部</Option>
+				<Option value="6">个人认证</Option>
+				<Option value="3">分析师认证</Option>
+			</Select>-->
+			<Select size="small" class="selectType" v-model="certificationStatus" @on-change="statusChange(certificationStatus)">
+				<Option value="">全部</Option>
+				<Option value="1">审核中</Option>
+				<Option value="2">审核不通过</Option>
+				<Option value="3">审核通过</Option>
 			</Select>
 			<Input class="searchBox" size="small" v-model.trim="searchContent" placeholder="要搜索的uuid或昵称">
 				<Select v-model="searchType" slot="prepend" style="width: 80px">
@@ -21,26 +27,39 @@
 		<Modal
 	        v-model="showAuthData"
 	        title="认证资料">
-	        <P>姓名: {{currentAuthData.nickName}}</P>
-	        <P>姓名: {{currentAuthData.nickName}}</P>
-	        <P>姓名: {{currentAuthData.nickName}}</P>
-	        <P>姓名: {{currentAuthData.nickName}}</P>
+	        <P>真实姓名: {{currentAuthData.name}}</P>
+	        <P>国家: {{currentAuthData.countryName}}</P>
+	        <P>手机号: {{currentAuthData.phoneNumber}}</P>
+	        <P>{{currentAuthData.type == 1 ? '身份证号' : '护照号'}}: {{currentAuthData.idNumber}}</P>
 	        <P>图片: </P>
-	        <div class="pictures">
-	        	<a v-for="item in currentAuthData.imgs" :href="item" target="_blank"><img :src="item"/></a>
+	        <div class="pictures" style="display: flex; text-align: center;">
+	        	<div style="padding-right: 20px;">
+	        		<a :href="currentAuthData.urlFront" target="_blank"><img :src="currentAuthData.urlFront"></a>
+	        		<div>证件照正面</div>
+	        	</div>
+	        	<div style="padding-right: 20px;">
+	        		<a :href="currentAuthData.urlHand" target="_blank"><img :src="currentAuthData.urlHand"></a>
+	        		<div>证件照手持</div>
+	        	</div>
+	        	<div style="padding-right: 20px;">
+	        		<a :href="currentAuthData.urlOpposite" target="_blank"><img :src="currentAuthData.urlOpposite"></a>
+	        		<div>证件照反面</div>
+	        	</div>
 	        </div>
+	        <p v-if="currentAuthData.status == 2">拒绝原因: {{currentAuthData.refuseType}}</p>
+	        <p v-if="currentAuthData.status != 1">审核人: {{currentAuthData.adminUser['nickName']}}</p>
 	    </Modal>
 		<Modal
-	        v-model="showRefuseReason"
+	        v-model="showRefuseType"
 	        title="请选择拒绝原因"
 	        @on-ok="refuseAuthentication">
 	        <p>拒绝原因:</p>
-	        <Select v-model="refuseReason">
-	        	<Option value="1">信息不全</Option>
-	        	<Option value="2">此身份证号码已被占用</Option>
-	        	<Option value="3">此手机号码已被占用</Option>
-	        	<Option value="4">证件信息不清晰</Option>
-	        	<Option value="5">证件信息错误</Option>
+	        <Select v-model="refuseType">
+	        	<Option value="1">证件图片信息与所留证件信息不匹配</Option>
+	        	<Option value="2">身份证号码不匹配</Option>
+	        	<Option value="3">证件信息不清晰</Option>
+	        	<Option value="4">证件信息错误</Option>
+	        	<Option value="5">手持身份证与“Insigh+日期”照片不合规定</Option>
 	        </Select>
 	    </Modal>
 	</div>
@@ -54,25 +73,52 @@
 			return {
 				columns: [
 					{
-						type: 'index',
-						width: 60,
-						align: 'center'
-					},
-					{
-                        title: 'uuid',
-                        key: 'uuid'
+                        title: 'uid',
+                        key: 'uid'
                    },
                     {
                         title: '用户名',
-                        key: 'nickName'
+                        render: (h, params) => {
+                        	let nickName = '';
+                        	if (params.row.user) {
+                        		nickName = params.row.user.nickName;
+                        	}
+                        	return h('div', nickName);
+                        }
                     },
                     {
                         title: '申请认证类别',
-                        key: 'type'
+                        key: 'type',
+                        render: (h, params) => {
+                        	let type = params.row.type;
+                        	switch (type) {
+                        		case 1: type = '身份证'; break;
+                        		case 2: type = '护照'; break;
+                        		default: break;
+                        	}
+                        	return h('div', type);
+                        }
                     },
                     {
                         title: '申请时间',
-                        key: 'createdTime'
+                        key: 'createdTime',
+                        render: (h, params) => {
+                        	return h('div', this.formatDate(params.row.createdTime));
+                        }
+                    },
+                    {
+                        title: '状态',
+                        key: 'status',
+                        render: (h, params) => {
+                        	let status = params.row.status;
+                        	switch (status) {
+                        		case 1: status = '审核中'; break;
+                        		case 2: status = '审核不通过'; break;
+                        		case 3: status = '审核通过'; break;
+                        		default: break;
+                        	}
+                        	return h('div', status);
+                        }
                     },
                     {
                     	title: '操作',
@@ -91,15 +137,21 @@
                                     },
                                     on: {
                                         click: () => {
-                                            let type = params.row.type;
-                                            let index = params.index;
-                                            if (type == 1) {
-                                            	//this.checkPersonal(index);
-                                            	this.currentAuthData = params.row;
-                                            	this.showAuthData = true;
-                                            } else if (type == 2) {
-                                            	this.checkAnalyst(index);
+                                            this.currentAuthData = params.row;
+                                            let refuseType = this.currentAuthData.refuseType;
+                                            if (refuseType) {
+                                            	switch (refuseType) {
+                                            		case 1: refuseType = '证件图片信息与所留证件信息不匹配'; break;
+                                            		case 2: refuseType = '身份证号码不匹配'; break;
+                                            		case 3: refuseType = '证件信息不清晰'; break;
+                                            		case 4: refuseType = '证件信息错误'; break;
+                                            		case 5: refuseType = '手持身份证与“Insigh+日期”照片不合规定'; break;
+                                            		default: break;
+                                            	}
                                             }
+                                            this.currentAuthData.refuseType = refuseType;
+                                            this.currentAuthData.countryName = this.currentAuthData.country.zhName;
+                                        	this.showAuthData = true;
                                         }
                                     }
                                 }, '认证资料'),
@@ -109,11 +161,12 @@
                                         size: 'small'
                                     },
                                     style: {
-                                        marginRight: '5px'
+                                        marginRight: '5px',
+                                        display: params.row.status != 1?'none':'inline-block'
                                     },
                                     on: {
                                         click: () => {
-                                            this.passAuthentication(params.index);
+                                            this.passAuthentication(params.index, params.row.uid);
                                         }
                                     }
                                 }, '通过验证'),
@@ -123,11 +176,13 @@
                                         size: 'small'
                                     },
                                     style: {
-                                        marginRight: '5px'
+                                        marginRight: '5px',
+                                        display: params.row.status != 1?'none':'inline-block'
                                     },
                                     on: {
                                         click: () => {
-                                            this.showRefuseReason = true;
+                                        	this.currentIndex = params.index;
+                                            this.showRefuseType = true;
                                         }
                                     }
                                 }, '拒绝认证')
@@ -135,42 +190,18 @@
                     	}
                     }
                 ],
-                data: [
-	                {
-	                	uuid: 123456,
-	                	nickName: 'name',
-	                	type: 1,
-	                	createdTime: '2018-01-01',
-	                	imgs: [
-	                		'https://i.loli.net/2017/08/21/599a521472424.jpg',
-	                		'https://i.loli.net/2017/08/21/599a521472424.jpg',
-	                		'https://i.loli.net/2017/08/21/599a521472424.jpg',
-	                		'https://i.loli.net/2017/08/21/599a521472424.jpg',
-	                		'https://i.loli.net/2017/08/21/599a521472424.jpg'
-	                	]
-	                },
-	                {
-	                	uuid: 123456,
-	                	nickName: 'name',
-	                	type: 2,
-	                	createdTime: '2018-01-01',
-	                	imgs: [
-	                		'https://i.loli.net/2017/08/21/599a521472424.jpg',
-	                		'https://i.loli.net/2017/08/21/599a521472424.jpg',
-	                		'https://i.loli.net/2017/08/21/599a521472424.jpg',
-	                		'https://i.loli.net/2017/08/21/599a521472424.jpg'
-	                	]
-	                }
-                ],					//渲染的数据
+                data: [],					//渲染的数据
                 loadingState: false,		//表格读取状态
                 total: 0,					//查询出的数据总条数
-                defaultType: '1',			//默认搜索的全部
+                certificationType: '',		//默认搜索的全部
+                certificationStatus: '',	//认证状态
 				searchType: 'uuid',			//搜索类型
 				searchContent: '',			//搜索的内容
-				showRefuseReason: false,	//显示拒绝弹窗
-				refuseReason: '1',			//拒绝原因
+				showRefuseType: false,	//显示拒绝弹窗
+				refuseType: '1',			//拒绝原因
 				showAuthData: false,		//显示认证资料
-				currentAuthData: ''			//当前认证资料
+				currentAuthData: '',		//当前认证资料
+				currentIndex: ''			//当前操作数据索引
 			}
 		},
 		methods: {
@@ -180,43 +211,82 @@
            	},
            	/*获取列表*/
            	loadList (page) {
-           		
+           		this.loadingState = true;
+           		this.$axios.get('user/certification/list?page='+page+'&pageSize=10&' + this.searchType + '=' + this.searchContent + 
+           		'&status=' + this.certificationStatus)
+				.then((response) => {
+					if (response.data.isSuccessful) {
+						console.log(response.data);
+						this.data = response.data.data.rows;
+						this.total = response.data.data.records;
+					} else {
+						this.$Notice.error({ title: response.data.message });
+					}
+					this.loadingState = false;
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        		this.loadingState = false;
+	        	})
            	},
            	/*筛选*/
-			typeChange (defaultType) {
-				console.log(defaultType);
+			typeChange (certificationType) {
+				console.log(certificationType);
+			},
+			statusChange (certificationStatus) {
+				this.loadList(1);
 			},
 			/*搜索*/
 			search () {
-				
-			},
-			/*查看个人申请资料*/
-			checkPersonal (index) {
-				this.$Modal.success({
-                    title: `${this.data[index].userName}的认证资料`,
-                    content: `姓名：${this.data[index].name}<br>
-                    		国家：${this.data[index].country}<br>
-                    		手机号码：${this.data[index].phoneNubmer}<br>
-                    		身份证号码：${this.data[index].IDCard}<br>
-                    		证件照: <img src="https://i.loli.net/2017/08/21/599a521472424.jpg" style="width: 100%;">`
-                })
-			},
-			/*查看分析师申请资料*/
-			checkAnalyst (index) {
-				alert('分析师');
+				this.loadList(1);
 			},
 			/*通过验证*/
-			passAuthentication (index) {
+			passAuthentication (index, certificationId) {
 				this.$Modal.confirm({
-                    content: `确认通过昵称为${this.data[index].nickName}用户的验证吗?`,
+                    content: `确认通过昵称为${this.data[index].user.nickName}用户的验证吗?`,
                     onOk: () => {
-                    	
+                    	this.loadingState = true;
+		           		this.$axios.post('user/certification/pass', qs.stringify({ certificationId: certificationId }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].status = 3;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.loadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
                     }
                 });
 			},
 			/*拒绝认证*/
 			refuseAuthentication () {
-				alert(this.refuseReason);
+				this.$Modal.confirm({
+                    content: `确认拒绝昵称为${this.data[this.currentIndex].user.nickName}用户的验证吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+		           		this.$axios.post('user/certification/refuse', qs.stringify({ refuseType: this.refuseType, certificationId: this.data[this.currentIndex].uid }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[this.currentIndex].status = 2;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.loadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+                });
 			},
 			/*时间格式化*/
 			formatDate (timestamp) {
@@ -265,6 +335,5 @@
 	.pictures img {
 		width: 100px;
 		height: 100px;
-		margin-right: 20px;
 	}
 </style>

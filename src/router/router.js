@@ -57,8 +57,7 @@ export const appRouter = [
 	    component: Main,
 	    children: [
 	        { path: 'coinList', title: '数币信息', name: 'coinList', meta: { requireAuth: true }, component: () => import('@/pages/CoinList.vue') },
-	        { path: 'commentList', title: '评论列表', name: 'commentList', meta: { requireAuth: true }, component: () => import('@/pages/CommentList.vue') },
-	        { path: 'airdropList', title: '空投列表', name: 'airdropList', meta: { requireAuth: true }, component: () => import('@/pages/AirdropList.vue') },
+	        { path: 'commentList', title: '评论列表', name: 'commentList', meta: { requireAuth: true }, component: () => import('@/pages/CommentList.vue') }
 	    ]
    	},
    	{
@@ -72,7 +71,6 @@ export const appRouter = [
    			{ path: 'userAdd', title: '新增用户', name: 'userAdd', meta: { requireAuth: true }, component: () => import('@/pages/UserEdit.vue') },
    			{ path: 'UserEdit/:id', title: '基本信息', name: 'userEdit', meta: { requireAuth: true }, component: () => import('@/pages/UserEdit.vue') },
    			{ path: 'waitAuthentication', title: '等待认证', name: 'waitAuthentication', meta: { requireAuth: true }, component: () => import('@/pages/WaitAuthentication.vue') },
-   			{ path: 'authenticated', title: '已认证', name: 'authenticated', meta: { requireAuth: true }, component: () => import('@/pages/Authenticated.vue') },
    			{ path: 'systemPush', title: '系统推送', name: 'systemPush', meta: { requireAuth: true }, component: () => import('@/pages/SystemPush.vue') },
    			{ path: 'systemPushCreate', title: '创建推送', name: 'systemPushCreate', meta: { requireAuth: true }, component: () => import('@/pages/SystemPushCreate.vue') }
    		]
@@ -85,9 +83,6 @@ export const appRouter = [
    		component: Main,
    		children: [
    			{ path: 'requestList', title: '请求列表', name: 'requestList', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationRequestList.vue') },
-   			{ path: 'orderTakingList/:id', title: '接单列表', name: 'orderTakingList', meta: { requireAuth: true }, component: () => import('@/pages/OrderTakingList.vue') },
-   			{ path: 'reportList', title: '报告列表', name: 'reportList', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationReportList.vue') },
-   			{ path: 'reportEdit', title: '新增报告', name: 'reportEdit', meta: { requireAuth: true }, component: () => import('@/pages/InvestigationReportEdit.vue') },
    			{ path: 'questionnaireList', title: '问卷管理', name: 'questionnaireList', meta: { requireAuth: true }, component: () => import('@/pages/QuestionnaireList.vue') },
    			{ path: 'completedList/:id', title: '已完成列表', name: 'completedList', meta: { requireAuth: true }, component: () => import('@/pages/CompletedList.vue') },
    			{ path: 'completedDetail/:uuid', title: '查看详情', name: 'completedDetail', meta: { requireAuth: true }, component: () => import('@/pages/CompletedDetail.vue') },
@@ -121,6 +116,29 @@ export const appRouter = [
    		children: [
    			{ path: 'ConfigurationList', title: '配置列表', name: 'ConfigurationList', meta: { requireAuth: true }, component: () => import('@/pages/ConfigurationList.vue') },
    			{ path: 'VersionList', title: '版本号列表', name: 'VersionList', meta: { requireAuth: true }, component: () => import('@/pages/VersionList.vue') }
+   		]
+   	},
+   	{
+   		path: '/news',
+   		name: 'news',
+   		title: '新闻管理',
+   		component: Main,
+   		children: [
+   			{ path: 'newsletterList', title: '快讯', name: 'newsletterList', meta: { requireAuth: true }, component: () => import('@/pages/NewsletterList.vue') },
+   			{ path: 'dailyList', title: '日报', name: 'dailyList', meta: { requireAuth: true }, component: () => import('@/pages/DailyList.vue') },
+   			{ path: 'newsletterAdd', title: '新增快讯', name: 'newsletterAdd', meta: { requireAuth: true }, component: () => import('@/pages/NewsletterEdit.vue') },
+   			{ path: 'newsletterEdit/:uid', title: '编辑快讯', name: 'newsletterEdit', meta: { requireAuth: true }, component: () => import('@/pages/NewsletterEdit.vue') },
+   			{ path: 'dailyAdd', title: '新增快讯', name: 'dailyAdd', meta: { requireAuth: true }, component: () => import('@/pages/DailyEdit.vue') },
+   			{ path: 'dailyEdit/:uid', title: '编辑快讯', name: 'dailyEdit', meta: { requireAuth: true }, component: () => import('@/pages/DailyEdit.vue') }
+   		]
+   	},
+   	{
+   		path: '/roni',
+   		name: 'roni',
+   		title: 'RONI管理',
+   		component: Main,
+   		children: [
+   			{ path: 'roniList', title: 'RONI列表', name: 'roniList', meta: { requireAuth: true }, component: () => import('@/pages/RoniList.vue') }
    		]
    	}
 ]

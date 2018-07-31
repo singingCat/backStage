@@ -18,21 +18,33 @@
 			return {
 				columns: [
 					{
-						type: 'index',
-						width: 60,
-						align: 'center'
-					},
-					{
                         title: 'uid',
                         key: 'uid'
-                   },
+                   	},
                     {
                         title: '标题',
                         key: 'title'
                     },
                     {
+                        title: '内容',
+                        key: 'content',
+                        render: (h, params) => {
+	                        return h('Poptip', {
+	                            props: {
+	                                trigger: 'hover',
+	                                content: params.row.content,
+	                                placement: 'bottom'
+	                            }
+	                        }, [
+	                            h('Tag', params.row.content)
+	                        ]);
+	                    }
+                    },
+                    {
                         title: '被发送人',
-                        key: 'pushedPeople'
+                        render: (h, params) => {
+                        	return h('div', params.row.user.nickName);
+                        }
                     },
                     {
                         title: '发送时间',
@@ -65,6 +77,7 @@
 				.then((response) => {
 					console.log(response.data.data);
 					if (response.data.isSuccessful) {
+						console.log(response.data);
 						this.data = response.data.data.rows;
 						this.total = response.data.data.records;
 						this.loadingState = false;

@@ -10,6 +10,18 @@ import axios from 'axios'
 import 'iview/dist/styles/iview.css'
 require('animate.css/animate.min.css')
 
+// Require Froala Editor js file.
+require('froala-editor/js/froala_editor.pkgd.min')
+
+// Require Froala Editor css files.
+require('froala-editor/css/froala_editor.pkgd.min.css')
+require('font-awesome/css/font-awesome.css')
+require('froala-editor/css/froala_style.min.css')
+
+// Import and use Vue Froala lib.
+import VueFroala from 'vue-froala-wysiwyg'
+Vue.use(VueFroala)
+
 Vue.use(VueResource)
 Vue.use(VueCountUp)
 Vue.use(iView)

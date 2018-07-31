@@ -26,13 +26,9 @@
 			            	<Icon type="ios-body"></Icon>
 			            	<span>等待认证</span>
 			            </MenuItem>
-			            <MenuItem name="authenticated">
-			            	<Icon type="ios-body"></Icon>
-			            	<span>已认证</span>
-			            </MenuItem>
 			            <MenuItem name="systemPush">
 			            	<Icon type="ios-paperplane"></Icon>
-			            	<span>系统推送</span>
+			            	<span>消息</span>
 			            </MenuItem>
 		            </Submenu>
 		            <Submenu name="investigation">
@@ -43,10 +39,6 @@
 			            <MenuItem name="requestList">
 			            	<Icon type="ios-list"></Icon>
 			            	<span>调研列表</span>
-			            </MenuItem>
-			            <MenuItem name="reportList">
-			            	<Icon type="ios-list"></Icon>
-			            	<span>报告列表</span>
 			            </MenuItem>
 			            <MenuItem name="questionnaireList">
 			            	<Icon type="android-clipboard"></Icon>
@@ -76,15 +68,39 @@
 		            <Submenu name="activity">
 			            <template slot="title">
 			            	<Icon type="ios-game-controller-b"></Icon>
-			            	<span>活动管理</span>
+			            	<span>配置管理</span>
 			            </template>
-			            <MenuItem name="ConfigurationList">
-			            	<Icon type="android-clipboard"></Icon>
-			            	<span>配置列表</span>
-			            </MenuItem>
 			            <MenuItem name="VersionList">
 			            	<Icon type="android-clipboard"></Icon>
-			            	<span>版本号</span>
+			            	<span>版本更新</span>
+			            </MenuItem>
+			            <MenuItem name="ConfigurationList">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>配置信息</span>
+			            </MenuItem>
+		            </Submenu>
+		            <Submenu name="activity">
+			            <template slot="title">
+			            	<Icon type="ios-game-controller-b"></Icon>
+			            	<span>新闻管理</span>
+			            </template>
+			            <MenuItem name="newsletterList">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>快讯</span>
+			            </MenuItem>
+			            <MenuItem name="dailyList">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>新闻</span>
+			            </MenuItem>
+		            </Submenu>
+		            <Submenu name="activity">
+			            <template slot="title">
+			            	<Icon type="ios-game-controller-b"></Icon>
+			            	<span>RONI管理</span>
+			            </template>
+			            <MenuItem name="roniList">
+			            	<Icon type="android-clipboard"></Icon>
+			            	<span>RONI列表</span>
 			            </MenuItem>
 		            </Submenu>
 	        	</Menu>
@@ -121,9 +137,6 @@
 		'commentList': '评论列表',
 		'investigation': '调研管理',
 		'requestList': '请求列表',
-		'orderTakingList': '接单列表',
-		'reportList': '报告列表',
-		'reportEdit': '新增报告',
 		'purse': '钱包管理',
 		'userPurseList': '用户钱包',
 		'userPurseEdit': '钱包编辑',
@@ -131,8 +144,8 @@
 		'tradeRecordEdit': '交易记录编辑',
 		'exchange': '兑换管理',
 		'exchangeRatio': '兑换比例',
-		'activity': '活动管理',
-		'ConfigurationList': '配置列表',
+		'activity': '配置管理',
+		'ConfigurationList': '配置信息',
 		'questionnaire': '问卷管理',
 		'questionnaireList': '问卷列表',
 		'completedList': '已完成列表',
@@ -140,12 +153,19 @@
 		'completedDetail': '答卷明细',
 		'questionList': '问题列表',
 		'airdrop': '空投管理',
-		'airdropList': '空投列表',
 		'waitAuthentication': '等待认证',
-		'authenticated': '已认证',
-		'systemPush': '系统推送',
-		'systemPushCreate': '创建推送',
-		'VersionList': '版本号'
+		'systemPush': '消息',
+		'systemPushCreate': '创建消息',
+		'VersionList': '版本更新',
+		'news': '新闻管理',
+		'newsletterList': '快讯',
+		'dailyList': '新闻',
+		'roni': 'RONI管理',
+		'roniList': 'RONI列表',
+		'newsletterAdd': '新增快讯',
+		'newsletterEdit': '编辑快讯',
+		'dailyAdd': '新增新闻',
+		'dailyEdit': '编辑新闻'
 	}
 	
 	export default {

@@ -5,6 +5,7 @@
 				<Select v-model="searchType" slot="prepend" style="width: 80px">
 		            <Option value="uuid">uuid</Option>
 		            <Option value="nickName">昵称</Option>
+		            <Option value="email">邮箱</Option>
 		            <Option value="invitationCode">邀请码</Option>
 		            <Option value="ethWalletAddress">eth钱包</Option>
 		        </Select>
@@ -46,12 +47,6 @@
 			return {
 				columns: [
 					{
-						type: 'index',
-						width: 60,
-						fixed: 'left',
-						align: 'center'
-					},
-					{
                         title: 'uuid',
                         key: 'uuid',
                         width: 150
@@ -75,7 +70,7 @@
                     	}
                     },
                     {
-                        title: 'inb数量',
+                        title: 'INB数量',
                         key: 'inbNumber',
                         width: 100
                     },

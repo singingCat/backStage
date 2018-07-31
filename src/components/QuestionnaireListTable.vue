@@ -160,12 +160,6 @@
 			return {
 				columns: [
 					{
-						type: 'index',
-						width: 60,
-						fixed: 'left',
-						align: 'center'
-					},
-					{
 	                    title: 'uid',
 	                    key: 'uid',
 	                    width: 60
@@ -176,14 +170,44 @@
 	                    width: 200
 	                },
 	                {
-	                    title: '创建人id',
-	                    key: 'userId',
-	                    width: 100
+	                    title: '创建人uuid',
+	                    width: 150,
+	                    render: (h, params) => {
+	                    	return h('div', params.row.publishUser.uuid);
+	                    }
 	                },
 	                {
 	                	title: '发起人',
 	                    key: 'publisher',
-	                    width: 200
+	                    width: 150
+	                },
+	                {
+	                	title: '管理员昵称',
+	                    width: 150,
+	                    render: (h, params) => {
+	                    	let nickName = '';
+	                    	if (params.row.adminUser) {
+	                    		nickName = params.row.adminUser.nickName;
+	                    	}
+	                    	return h('div', nickName);
+	                    }
+	                },
+	                {
+	                    title: '状态',
+	                    key: 'onlineStatus',
+	                    width: 130,
+	                    render: (h, params) => {
+	                        const row = params.row;
+	                        const color = row.onlineStatus === 1 ? '#000' : row.onlineStatus === 2 ? '#2db7f5' : row.onlineStatus === 3 ? '#f90' : '#ed3f14';
+	                        const text = row.onlineStatus === 1 ? '未上线' : row.onlineStatus === 2 ? '测试中' : row.onlineStatus === 3 ? '已上线' : '已下线';
+	
+	                        return h('Tag', {
+	                            props: {
+	                                type: 'dot',
+	                                color: color
+	                            }
+	                        }, text);
+	                    }
 	                },
 	                {
 	                	title: '币种',
@@ -249,7 +273,8 @@
                                     },
                                     on: {
                                         click: () => {
-                                            this.toQuestionShow(params.row.uid, params.row.questions);
+                                            //this.toQuestionShow(params.row.uid, params.row.questions);
+                                            console.log(params.row.questions);
                                         }
                                     }
                                 }, '问卷详情'),
@@ -304,11 +329,6 @@
 					reportId: ''		//所在报告ID
 				},
                 questionColumns: [
-					{
-						type: 'index',
-						width: 60,
-						align: 'center'
-					},
 					{
 	                    title: 'uid',
 	                    key: 'uid'
@@ -376,11 +396,6 @@
                 questionData: [],
                 questionLoadingState: false,
                 optionColumns: [
-					{
-						type: 'index',
-						width: 60,
-						align: 'center'
-					},
 					{
 	                    title: 'uid',
 	                    key: 'uid'

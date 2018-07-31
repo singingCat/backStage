@@ -153,12 +153,6 @@
 			return {
 				columns: [
 					{
-						type: 'index',
-						width: 60,
-						fixed: 'left',
-						align: 'center',
-					},
-					{
 						title: 'uid',
 						key: 'uid',
 						width: 70
@@ -200,22 +194,34 @@
                     {
                    		title: '价格',
                    		key: 'price',
-                   		width: 80
+                   		width: 120
                    	},
                    	{
                    		title: '流通量',
                    		key: 'circulatingSupply',
-                   		width: 120
+                   		width: 140,
+                   		render: (h, params) => {
+                   			let circulatingSupply = params.row.circulatingSupply;
+                   			return h('div', circulatingSupply.toLocaleString());
+                   		}
                    	},
                    	{
                    		title: '最大供应量',
                    		key: 'maxSupply',
-                   		width: 120
+                   		width: 140,
+                   		render: (h, params) => {
+                   			let maxSupply = params.row.maxSupply;
+                   			return h('div', maxSupply.toLocaleString());
+                   		}
                    	},
                    	{
                    		title: '总供应量',
                    		key: 'totalSupply',
-                   		width: 120
+                   		width: 140,
+                   		render: (h, params) => {
+                   			let totalSupply = params.row.totalSupply;
+                   			return h('div', totalSupply.toLocaleString());
+                   		}
                    	},
                    	{
                    		title: 'BTC价格',
@@ -364,12 +370,6 @@
 					logoUrl: ''				
 				},
 				airdropColumns: [
-					{
-						type: 'index',
-						width: 60,
-						fixed: 'left',
-						align: 'center'
-					},
 					{
                         title: 'uid',
                         key: 'uid',

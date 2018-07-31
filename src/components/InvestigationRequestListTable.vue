@@ -78,12 +78,6 @@
 		data () {
 			return {
 				columns: [
-					{
-						type: 'index',
-						width: 60,
-						fixed: 'left',
-						align: 'center'
-					},
                     {
                         title: 'uid',
                         key: 'uid',
@@ -199,25 +193,11 @@
                     },
                     {
                     	title: '操作',
-                    	width: 150,
+                    	width: 80,
                     	fixed: 'right',
                     	align: 'center',
                     	render: (h, params) => {
                     		return h('div', [
-                                h('Button', {
-                                    props: {
-                                        type: 'info',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.toReceiptList(params.index)
-                                        }
-                                    }
-                                }, '接单详情'),
                                 h('Button', {
                                     props: {
                                         type: params.row.onlineStatus == 3?'error':'warning',
@@ -247,11 +227,6 @@
                 searchType: 'uuid',		//检索类型
                 searchContent: '',		//检索内容
                 orderColumns: [
-                	{
-						type: 'index',
-						width: 60,
-						align: 'center'
-					},
 					{
 						title: 'uid',
 						key: 'uid'
@@ -297,12 +272,6 @@
                 orderTotal: 0,
                 orderSearchContent: '',
                 reportColumns: [
-					{
-						type: 'index',
-						width: 60,
-						fixed: 'left',
-						align: 'center'
-					},
                     {
                         title: 'uid',
                         key: 'uid',
@@ -432,10 +401,6 @@
 			}
 		},
 		methods: {
-            /*查看接单详情*/
-           	toReceiptList (index) {
-           		this.$router.push({ path: 'orderTakingList/' + this.data[index].uid, query: { name: this.data[index].name, taskAcceptList: this.data[index].taskAcceptList } })
-           	},
            	/*获取列表*/
            	loadList (page) {
            		this.loadingState = true;
