@@ -1,5 +1,10 @@
 <template>
-	<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
+	<div>
+		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
+		<div class="page">
+			<Page :total="total" :current="1" show-total @on-change="changePage"></Page>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -16,15 +21,26 @@
 					},
 					{
 	                    title: 'uuid',
-	                    key: 'userUuid'
+	                    render: (h, params) => {
+	                    	if (params.row.user) {
+	                    		return h('div', params.row.user.uuid);
+	                    	}
+	                    }
 	                },
 	                {
 	                    title: '用户名',
-	                    key: 'nickName'
+	                    render: (h, params) => {
+	                    	if (params.row.user) {
+	                    		return h('div', params.row.user.nickName);
+	                    	}
+	                    }
 	                },
 	                {
 	                	title: '完成时间',
-	                    key: 'answerTime'
+	                    key: 'answerTime',
+	                    render: (h, params) => {
+	                    	return h('div', this.formatDate(params.row.answerTime));
+	                    }
 	                },
 	                {
 	                	title: '奖励INB',
@@ -70,8 +86,7 @@
 				.then((response) => {
 					if (response.data.isSuccessful) {
 						this.data = response.data.data.rows;
-						this.total = response.data.data.total;
-						this.handleData();
+						this.total = response.data.data.records;
 						this.loadingState = false;
 					}
 	        	})
@@ -84,14 +99,6 @@
            	changePage (page) {
            		this.loadList(page);
            	},
-           	/*数据处理*/
-			handleData () {
-				this.data.forEach((item, index) => {
-					item.userUuid = item.user.uuid;
-					item.nickName = item.user.nickName;
-					item.answerTime = this.formatDate(item.answerTime);
-				});
-			},
 			/*查看详情*/
            	toCompletedDetail (uid, userQuestionAnswers) {
            		this.$router.push({ path: '../completedDetail/' + uid, query: { questions: this.$route.query.questions, userQuestionAnswers: userQuestionAnswers } });
@@ -114,5 +121,9 @@
 	}
 </script>
 
-<style>
+<style scoped>
+	.page {
+		float: right;
+		margin-top: 20px;
+	}
 </style>

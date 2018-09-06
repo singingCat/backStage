@@ -3,7 +3,7 @@
 		<ButtonGroup size="small" class="btn-group">
 			<Button type="primary" @click="add">新增</Button>
 			<Input class="searchBox" size="small" v-model="searchContent" placeholder="要搜索的货币名称...">
-				<Button slot="append" icon="search" @click="search"></Button>
+				<Button slot="append" icon="md-search" @click="search"></Button>
 			</Input>
 		</ButtonGroup>
 		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
@@ -30,6 +30,9 @@
 		            	<Option value="2">ICO进行中</Option>
 		            	<Option value="3">ICO结束</Option>
 		            </Select>
+		        </FormItem>
+		        <FormItem label="官网:">
+		            <Input v-model="formItem.websiteUrl" placeholder="请输入官网"></Input>
 		        </FormItem>
 		        <FormItem label="BTC价格:">
 		            <Input v-model="formItem.priceBtc" placeholder="请输入BTC价格"></Input>
@@ -67,7 +70,7 @@
 		            <Option value="coinId">数币ID</Option>
 		            <Option value="getType">空投类型</Option>
 		        </Select>
-				<Button slot="append" icon="search" @click="airdropSearch"></Button>
+				<Button slot="append" icon="md-search" @click="airdropSearch"></Button>
 			</Input>
 		</ButtonGroup>
 		<Table border :columns="airdropColumns" :data="airdropData" :loading="airdropLoadingState"></Table>
@@ -201,8 +204,11 @@
                    		key: 'circulatingSupply',
                    		width: 140,
                    		render: (h, params) => {
-                   			let circulatingSupply = params.row.circulatingSupply;
-                   			return h('div', circulatingSupply.toLocaleString());
+                   			let circulatingSupply = '';
+                   			if (params.row.circulatingSupply) {
+                   				circulatingSupply = params.row.circulatingSupply.toLocaleString();
+                   			}
+                   			return h('div', circulatingSupply);
                    		}
                    	},
                    	{
@@ -210,8 +216,11 @@
                    		key: 'maxSupply',
                    		width: 140,
                    		render: (h, params) => {
-                   			let maxSupply = params.row.maxSupply;
-                   			return h('div', maxSupply.toLocaleString());
+                   			let maxSupply = '';
+                   			if (params.row.maxSupply) {
+                   				maxSupply = params.row.maxSupply.toLocaleString();
+                   			}
+                   			return h('div', maxSupply);
                    		}
                    	},
                    	{
@@ -219,8 +228,11 @@
                    		key: 'totalSupply',
                    		width: 140,
                    		render: (h, params) => {
-                   			let totalSupply = params.row.totalSupply;
-                   			return h('div', totalSupply.toLocaleString());
+                   			let totalSupply = '';
+                   			if (params.row.totalSupply) {
+                   				totalSupply = params.row.totalSupply.toLocaleString();
+                   			}
+                   			return h('div', totalSupply);
                    		}
                    	},
                    	{
@@ -237,17 +249,12 @@
                    		title: '数币简介',
                    		key: 'introduction',
                    		width: 100,
-                   		render: (h, params) => {
-	                        return h('Poptip', {
-	                            props: {
-	                                trigger: 'hover',
-	                                content: params.row.introduction,
-	                                placement: 'bottom'
-	                            }
-	                        }, [
-	                            h('Tag', params.row.introduction)
-	                        ]);
-	                    }
+                   		tooltip: true
+                   	},
+                   	{
+                   		title: '官网',
+                   		key: 'websiteUrl',
+                   		width: 100
                    	},
                     {
                     	title: '操作',
@@ -325,11 +332,12 @@
                                     },
                                     on: {
                                         click: () => {
-                                        	if (params.row.status == 4) {
+                                        	/*if (params.row.status == 4) {
                                         		this.$Notice.warning({ title: '已上交易所不能编辑' });
                                         	} else {
                                         		this.edit(params.index, params.row);
-                                        	}
+                                        	}*/
+                                        	this.edit(params.index, params.row);
                                         }
                                     }
                                 }, '编辑'),
@@ -359,7 +367,8 @@
 					symbolName: '',			
 					nameEnUs: '',			
 					nameZhCn: '',			
-					status: '',			
+					status: '',		
+					websiteUrl: '',
 					priceBtc: '',
 					priceEth: '',
 					price: '',
@@ -417,32 +426,14 @@
                     {
                         title: '空投详情',
                         width: 100,
-                        render: (h, params) => {
-	                        return h('Poptip', {
-	                            props: {
-	                                trigger: 'hover',
-	                                content: params.row.description,
-	                                placement: 'bottom'
-	                            }
-	                        }, [
-	                            h('Tag', params.row.description)
-	                        ]);
-	                    }
+                        tooltip: true,
+                        key: 'description'
                     },
                     {
                         title: '空投入口',
                         width: 100,
-                        render: (h, params) => {
-	                        return h('Poptip', {
-	                            props: {
-	                                trigger: 'hover',
-	                                content: params.row.entrance,
-	                                placement: 'bottom'
-	                            }
-	                        }, [
-	                            h('Tag', params.row.entrance)
-	                        ]);
-	                    }
+                        tooltip: true,
+                        key: 'entrance'
                     },
                     {
                         title: '空投奖励',
@@ -462,7 +453,7 @@
                     {
                     	title: '操作',
                     	key: 'action',
-                    	width: 160,
+                    	width: 180,
                     	fixed: 'right',
                     	align: 'center',
                     	render: (h, params) => {
@@ -601,6 +592,21 @@
 			},
             /*编辑*/
             edit (index, row) {
+            	this.formItem = {
+            		symbolName: '',			
+					nameEnUs: '',			
+					nameZhCn: '',			
+					status: '',	
+					websiteUrl: '',
+					priceBtc: '',
+					priceEth: '',
+					price: '',
+					introduction: '',		
+					circulatingSupply: '',	
+					totalSupply: '',		
+					maxSupply: '',			
+					logoUrl: ''	
+            	};
             	this.modalType = 'edit';
             	this.currentUid = row.uid;
             	for (let key in row) {
@@ -652,7 +658,6 @@
             editConfirm () {
             	this.loadingState = true;
             	this.formItem['uid'] = this.currentUid;
-            	this.formItem['adminUuid'] = localStorage.adminUuid;
             	
             	this.$axios.post('coin/update', qs.stringify(this.formItem), 
             	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})

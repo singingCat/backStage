@@ -2,6 +2,14 @@
 	<div>
 		<ButtonGroup size="small" class="btn-group">
 			<Button type="primary" @click="questionnaireAdd">新增问卷</Button>
+			<Button type="info" @click="exportQuestionnaire('all')" style="margin-right: 20px;">全部导出</Button>
+			<Input class="searchBox" size="small" v-model.trim="searchContent" placeholder="要搜索的内容">
+				<Select v-model="searchType" slot="prepend" style="width: 80px">
+		            <Option value="title">问卷名</Option>
+		            <Option value="coinName">货币</Option>
+		        </Select>
+				<Button slot="append" icon="md-search" @click="searchQuestionnaire"></Button>
+			</Input>
 		</ButtonGroup>
 		<Table border highlight-row :columns="columns" :data="data" :loading="loadingState" @on-current-change="changeQuestionnaire"></Table>
 		<div style="width: 100%;">
@@ -37,6 +45,20 @@
 		            <Select v-model="questionnaireItem.type">
 		            	<Option value="1">用户调研</Option>
 		            	<Option value="2">企业问询</Option>
+		            	<Option value="3">Panel专属</Option>
+		            </Select>
+		        </FormItem>
+		        <FormItem label="问卷类型:">
+		            <Select v-model="questionnaireItem.type2">
+		            	<Option value="1">普通问卷</Option>
+		            	<Option value="2">pannel问卷</Option>
+		            	<Option value="3">社区评级问卷</Option>
+		            </Select>
+		        </FormItem>
+		        <FormItem label="热点类型:">
+		        	<Select v-model="questionnaireItem.focusType">
+		            	<Option value="1">普通问卷</Option>
+		            	<Option value="2">热点问卷</Option>
 		            </Select>
 		        </FormItem>
 		        <FormItem label="币种(选填):">
@@ -77,6 +99,20 @@
 		            <Select v-model="questionnaireItem.type">
 		            	<Option value="1">用户调研</Option>
 		            	<Option value="2">企业问询</Option>
+		            	<Option value="3">Panel专属</Option>
+		            </Select>
+		        </FormItem>
+		        <FormItem label="问卷类型:">
+		            <Select v-model="questionnaireItem.type2">
+		            	<Option value="1">普通问卷</Option>
+		            	<Option value="2">pannel问卷</Option>
+		            	<Option value="3">社区评级问卷</Option>
+		            </Select>
+		        </FormItem>
+		        <FormItem label="热点类型:">
+		        	<Select v-model="questionnaireItem.focusType">
+		            	<Option value="1">普通问卷</Option>
+		            	<Option value="2">热点问卷</Option>
 		            </Select>
 		        </FormItem>
 		        <FormItem label="币种(选填):">
@@ -111,9 +147,16 @@
 	        	<Option value="1">单选</Option>
 	        	<Option value="2">多选</Option>
 	        	<Option value="3">填空</Option>
+	        	<Option value="4">评分</Option>
 	        </Select>
 	        <p>排序:</p>
 	        <Input v-model="questionOrder"></Input>
+	        <p>最小描述</p>
+	        <Input v-model="minDescription"></Input>
+	        <p>最大描述</p>
+	        <Input v-model="maxDescription"></Input>
+	        <p>权重</p>
+	        <Input v-model="weightsIndex"></Input>
 	    </Modal>
 		<Modal
 	        v-model="editQuestionShow"
@@ -126,28 +169,39 @@
 	        	<Option value="1">单选</Option>
 	        	<Option value="2">多选</Option>
 	        	<Option value="3">填空</Option>
+	        	<Option value="4">评分</Option>
 	        </Select>
 	        <p>排序:</p>
 	        <Input v-model="questionOrder"></Input>
+	        <p>最小描述</p>
+	        <Input v-model="minDescription"></Input>
+	        <p>最大描述</p>
+	        <Input v-model="maxDescription"></Input>
+	        <p>权重</p>
+	        <Input v-model="weightsIndex"></Input>
 	    </Modal>
 	    <Modal
 	        v-model="addOptionShow"
 	        title="新增选项"
 	        @on-ok="addOptionConfirm">
 	        <p style="margin-bottom: 20px;">问题名: {{currentQuestion}}</p>
-	        <p>选项名称:</p>
+	        <p>选项名称(评分题时为等级级别):</p>
 	        <Input v-model="optionName"></Input>
 	        <p>排序:</p>
 	        <Input v-model="optionOrder"></Input>
+	        <p>分数</p>
+	        <Input v-model="score"></Input>
 	    </Modal>
 	    <Modal
 	        v-model="editOptionShow"
 	        title="编辑选项"
 	        @on-ok="editOptionConfirm">
-	        <p>选项名称:</p>
+	        <p>选项名称(评分题时为等级级别):</p>
 	        <Input v-model="optionName"></Input>
 	        <p>排序:</p>
 	        <Input v-model="optionOrder"></Input>
+	        <p>分数</p>
+	        <Input v-model="score"></Input>
 	    </Modal>
 	</div>
 </template>
@@ -178,8 +232,10 @@
 	                },
 	                {
 	                	title: '发起人',
-	                    key: 'publisher',
-	                    width: 150
+	                    width: 150,
+	                    render: (h, params) => {
+	                    	return h('div', params.row.publishUser.nickName);
+	                    }
 	                },
 	                {
 	                	title: '管理员昵称',
@@ -210,6 +266,50 @@
 	                    }
 	                },
 	                {
+	                	title: '类型',
+	                	width: 100,
+	                	key: 'type',
+	                	render: (h, params) => {
+	                		let type = params.row.type;
+	                		switch (type) {
+	                			case 1: type = '用户调研'; break;
+	                			case 2: type = '企业问询'; break;
+	                			case 3: type = 'Panel专属'; break;
+	                			default: break;
+	                		}
+	                		return h('div', type);
+	                	}
+	                },
+	                {
+	                	title: '问卷类型',
+	                	width: 100,
+	                	key: 'type2',
+	                	render: (h, params) => {
+	                		let type2 = params.row.type2;
+	                		switch (type2) {
+	                			case 1: type2 = '普通问卷'; break;
+	                			case 2: type2 = 'pannel问卷'; break;
+	                			case 3: type2 = '社区评级问卷'; break;
+	                			default: break;
+	                		}
+	                		return h('div', type2);
+	                	}
+	                },
+	                {
+	                	title: '热点类型',
+	                	width: 100,
+	                	key: 'focusType',
+	                	render: (h, params) => {
+	                		let focusType = params.row.focusType;
+	                		switch (focusType) {
+	                			case 1: focusType = '普通问卷'; break;
+	                			case 2: focusType = '热点问卷'; break;
+	                			default: break;
+	                		}
+	                		return h('div', focusType);
+	                	}
+	                },
+	                {
 	                	title: '币种',
 	                    key: 'coinName',
 	                    width: 80,
@@ -238,13 +338,20 @@
 	                },
 	                {
 	                	title: '剩余',
-	                    key: 'surplus',
-	                    width: 80
+	                    width: 80,
+	                    render: (h, params) => {
+	                    	return h('div', params.row.totalNumber - params.row.doneNumber);
+	                    }
+	                },
+	                {
+	                	title: '总数',
+	                	key: 'totalNumber',
+	                	width: 80
 	                },
 	                {
                     	title: '操作',
                     	key: 'action',
-                    	width: 240,
+                    	width: 400,
                     	fixed: 'right',
                     	align: 'center',
                     	render: (h, params) => {
@@ -273,8 +380,8 @@
                                     },
                                     on: {
                                         click: () => {
-                                            //this.toQuestionShow(params.row.uid, params.row.questions);
-                                            console.log(params.row.questions);
+                                            this.toQuestionShow(params.row.uid, params.row.questions);
+                                            //console.log(params.row.questions);
                                         }
                                     }
                                 }, '问卷详情'),
@@ -292,6 +399,48 @@
                                         }
                                     }
                                 }, '编辑'),
+                                h('Button', {
+                                    props: {
+                                        type: 'warning',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.copy(params.row.uid);
+                                        }
+                                    }
+                                }, '复制'),
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.exportQuestionnaire(params.row.uid);
+                                        }
+                                    }
+                                }, '导出'),
+                                h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.testQuestionnaire(params.index, params.row.uid);
+                                        }
+                                    }
+                                }, '测试'),
                                 h('Button', {
                                     props: {
                                         type: params.row.onlineStatus == 3?'error':'warning',
@@ -315,12 +464,18 @@
                 ],
                 data: [],
                 loadingState: false,	//表格读取状态
-                total: 0,
+                total: 0,				//问卷总数
+                searchType: '',			//搜索类型
+                searchContent: '',		//搜索内容
+                exportData: [],			//待导出数据
+                currentPage: 1,			//当前页
                 questionnaireItem: {
 					name: '',			//问卷名称
 					founderUuid: '',	//创建人uuid
 					description: '',	//描述
 					type: '',			//类型
+					type2: '',			//问卷类型
+					focusType: '',		//热点类型
 					coinName: '',		//币种
 					validFromTime: '',	//开始时间
 					validToTime: '',	//结束时间
@@ -346,6 +501,7 @@
                         		case 1: optionType = '单选'; break;
                         		case 2: optionType = '多选'; break;
                         		case 3: optionType = '填空'; break;
+                        		case 4: optionType = '评分'; break;
                         		default: break;
                         	}
                         	return h('div', optionType);
@@ -374,6 +530,9 @@
                                         	this.questionName = params.row.title;
                                         	this.questionType = params.row.optionType + '';
                                         	this.questionOrder = params.row.showOrder;
+                                        	this.maxDescription = params.row.maxDescription;
+                                        	this.minDescription = params.row.minDescription;
+                                        	this.weightsIndex = params.row.weightsIndex;
                                             this.editQuestionShow = true;
                                         }
                                     }
@@ -405,6 +564,10 @@
 	                    key: 'content'
 	                },
 	                {
+	                	title: '分数',
+	                	key: 'score'
+	                },
+	                {
 	                    title: '排序',
 	                    key: 'showOrder'
 	                },
@@ -427,6 +590,7 @@
                                         	this.currentOptionUid = params.row.uid;
                                         	this.optionName = params.row.content;
                                         	this.optionOrder = params.row.showOrder;
+                                        	this.score = params.row.score;
                                             this.editOptionShow = true;
                                         }
                                     }
@@ -459,19 +623,32 @@
                 questionName: '',
                 questionType: '',
                 questionOrder: '',
+                maxDescription: '',
+                minDescription: '',
+                weightsIndex: '',
                 optionName: '',
                 optionOrder: '',
                 currentQuestionType: '',
                 currentOptionUid: '',
                 currentQuestionnaire: '',
-                currentQuestion: ''
+                currentQuestion: '',
+                questionMinDesc: '',
+                questionMaxDesc: '',
+                score: ''
 			}
 		},
 		methods: {
 			/*获取问卷列表*/
            	loadList (page) {
            		this.loadingState = true;
-           		this.$axios.post('user/questionnaire/lists', qs.stringify({ page: page, pageSize: 10 }), 
+           		let args = {
+           			page: page,
+           			pageSize: 10
+           		};
+           		if (this.searchType !== '') {
+           			args[this.searchType] = this.searchContent;
+           		}
+           		this.$axios.post('user/questionnaire/lists', qs.stringify(args), 
             	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 				.then((response) => {
 					if (response.data.isSuccessful) {
@@ -489,6 +666,7 @@
            	/*分页*/
            	changePage (page) {
            		this.loadList(page);
+           		this.currentPage = page;
            	},
 			/*进入已完成列表*/
 			toCompletedList (uid, questions) {
@@ -501,10 +679,8 @@
 			/*数据处理*/
 			handleData () {
 				this.data.forEach((item, index) => {
-					item.publisher = item.publishUser.nickName;
 					item.validFromTime = this.formatDate(item.validFromTime);
 					item.validToTime = this.formatDate(item.validToTime);
-					item.surplus = item.doneNumber + '/' + item.totalNumber;
 				});
 			},
 			/*时间格式化*/
@@ -517,6 +693,14 @@
 		        let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
 		        let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
 		        return Y+M+D+h+m+s;
+			},
+			/*时间格式化*/
+			formatDateToDay (timestamp) {
+				let date = new Date(timestamp);
+		        let Y = date.getFullYear() + '-';
+		        let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+		        let D = (	date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+		        return Y+M+D;
 			},
 			/*点击问卷*/
 			changeQuestionnaire (currentRow, oldCurrentRow) {	//currentRow:当前行数据;oldCurrentRow:上一条数据
@@ -571,6 +755,7 @@
            			founderUuid: '',
 					description: '',
 					type: '',
+					focusType: '',
 					coinName: '',
 					validFromTime: '',
 					validToTime: '',
@@ -592,6 +777,8 @@
 					description: row.description,
 					coinName: coinName,
 					type: row.type + '',
+					type2: row.type2 + '',
+					focusType: row.focusType + '',
 					validFromTime: row.validFromTime,
 					validToTime: row.validToTime,
 					rewardInb: row.rewardInb,
@@ -603,7 +790,6 @@
            	/*编辑问卷确认*/
            	editQuestionnaireConfirm () {
            		this.loadingState = true;
-				this.questionnaireItem['adminUuid'] = localStorage.adminUuid;
 				this.questionnaireItem['uid'] = this.questionnaireId;
             	this.questionnaireItem.validFromTime = parseInt(new Date(this.questionnaireItem.validFromTime).getTime());
             	this.questionnaireItem.validToTime = parseInt(new Date(this.questionnaireItem.validToTime).getTime());
@@ -613,7 +799,7 @@
 				.then((response) => {
 					if(response.data.isSuccessful){
 						this.$Notice.success({ title: '操作成功' });
-						this.loadList(1);
+						this.loadList(this.currentPage);
 					} else {
 						this.$Notice.error({ title: response.data.message });
 						this.loadingState = false;
@@ -624,6 +810,9 @@
 	        		this.loadingState = false;
 	        	})
            	},
+           	searchQuestionnaire () {
+				this.loadList(1);
+			},
 			/*新增问题*/
 			questionAdd () {
 				if (this.questionnaireId == '') {
@@ -632,6 +821,9 @@
 					this.questionName = '';
 					this.questionType = '';
 					this.questionOrder = '';
+					this.minDescription = '';
+					this.maxDescription = '';
+					this.weightsIndex = '';
 					this.addQuestionShow = true;
 				}
 			},
@@ -644,13 +836,13 @@
 				} else {
 					this.optionName = '';
 					this.optionOrder = '';
+					this.score = '';
 					this.addOptionShow = true;
 				}
 			},
 			/*新增问卷确认*/
 			addQuestionnaireConfirm () {
 				this.loadingState = true;
-				this.questionnaireItem['adminUuid'] = localStorage.adminUuid;
             	this.questionnaireItem.validFromTime = parseInt(new Date(this.questionnaireItem.validFromTime).getTime());
             	this.questionnaireItem.validToTime = parseInt(new Date(this.questionnaireItem.validToTime).getTime());
             	
@@ -675,16 +867,17 @@
 			addQuestionConfirm () {
 				this.questionLoadingState = true;
 				let formItem = {};
-				formItem['adminUuid'] = localStorage.adminUuid;
 				formItem['questionnaireId'] = this.questionnaireId;
 				formItem['title'] = this.questionName;
 				formItem['optionType'] = this.questionType;
 				formItem['showOrder'] = this.questionOrder;
+				formItem['maxDescription'] = this.maxDescription;
+				formItem['minDescription'] = this.minDescription;
+				formItem['weightsIndex'] = this.weightsIndex;
 				
 				this.$axios.post('user/question/add', qs.stringify(formItem), 
             	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 				.then((response) => {
-					console.log(response.data);
 					if (response.data.isSuccessful) {
 						this.questionLoadingState = false;
 						this.$Notice.success({ title: '操作成功' });
@@ -700,18 +893,24 @@
 			editQuestionConfirm () {
 				this.questionLoadingState = true;
 				let formItem = {};
-				formItem['adminUuid'] = localStorage.adminUuid;
 				formItem['title'] = this.questionName;
 				formItem['optionType'] = this.questionType;
 				formItem['showOrder'] = this.questionOrder;
 				formItem['uid'] = this.questionUid;
+				formItem['maxDescription'] = this.maxDescription;
+				formItem['minDescription'] = this.minDescription;
+				formItem['weightsIndex'] = this.weightsIndex;
 				
            		this.$axios.post('user/question/update', qs.stringify(formItem), 
             	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 				.then((response) => {
+					console.log(response.data);
 					if (response.data.isSuccessful) {
 						this.$Notice.success({ title: '操作成功' });
 						this.loadQuestionList(this.questionnaireId);
+					} else {
+						this.$Notice.error({ title: response.data.message });
+						this.questionLoadingState = false;
 					}
 	        	})
 	        	.catch((error) => {
@@ -723,15 +922,16 @@
 			addOptionConfirm () {
 				this.optionLoadingState = true;
 				let formItem = {};
-				formItem['adminUuid'] = localStorage.adminUuid;
 				formItem['questionId'] = this.questionUid;
 				formItem['content'] = this.optionName;
 				formItem['showOrder'] = this.optionOrder;
 				formItem['optionType'] = this.currentQuestionType;
+				formItem['score'] = this.score;
 				
 				this.$axios.post('user/option/add', qs.stringify(formItem), 
             	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 				.then((response) => {
+					console.log(response.data);
 					if (response.data.isSuccessful) {
 						this.$Notice.success({ title: '操作成功' });
 						this.loadOptionList(this.questionUid);
@@ -746,11 +946,11 @@
 			editOptionConfirm () {
 				this.optionLoadingState = true;
 				let formItem = {};
-				formItem['adminUuid'] = localStorage.adminUuid;
 				formItem['uid'] = this.currentOptionUid;
 				formItem['content'] = this.optionName;
 				formItem['showOrder'] = this.optionOrder;
 				formItem['optionType'] = this.currentQuestionType;
+				formItem['score'] = this.score;
 				
 				this.$axios.post('user/option/update', qs.stringify(formItem), 
             	{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
@@ -800,6 +1000,30 @@
 						.then((response) => {
 							if(response.data.isSuccessful){
 								this.data[index].onlineStatus = 3;
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.loadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+                });
+			},
+			/*问卷测试*/
+			testQuestionnaire (index, questionnaireId) {
+				this.$Modal.confirm({
+                    content: `确认将该问卷转为测试吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+		           		this.$axios.post('user/questionnaire/testing', qs.stringify({ questionnaireId: questionnaireId }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.data[index].onlineStatus = 2;
 								this.$Notice.success({ title: '操作成功' });
 							} else {
 								this.$Notice.error({ title: response.data.message });
@@ -864,6 +1088,103 @@
 			        	})
 					}
 				});
+			},
+			/*复制问卷*/
+			copy (questionnaireId) {
+				this.$Modal.confirm({
+                    content: `确认复制该问卷吗?`,
+                    onOk: () => {
+                    	this.loadingState = true;
+		           		this.$axios.post('user/copy/questionnaire', qs.stringify({ questionnaireId: questionnaireId }),
+		           		{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+						.then((response) => {
+							if(response.data.isSuccessful){
+								this.loadList(1);
+								this.$Notice.success({ title: '操作成功' });
+							} else {
+								this.$Notice.error({ title: response.data.message });
+							}
+							this.loadingState = false;
+			        	})
+			        	.catch((error) => {
+			        		console.log(error);
+			        		this.loadingState = false;
+			        	})
+                    }
+                });
+			},
+			/*导出CSV*/
+			exportQuestionnaire (arg) {
+				let args = arg;
+				let url = 'questionnaire/export';
+				let name = 'all_' + this.formatDateToDay(new Date()) + '.csv';
+				if (args !== 'all') {
+					url = 'questionnaire/export?questionnaireId=' + args;
+					name = args + '_' + this.formatDateToDay(new Date()) + '.csv';
+				}
+				
+				this.$axios.get(url)
+				.then((response) => {
+					if (response.data.isSuccessful) {
+						this.exportData = response.data.data;
+						this.downloadCSV({ filename: name });
+					} else {
+						this.$Notice.error({ title: response.data.message });
+					}
+	        	})
+	        	.catch((error) => {
+	        		console.log(error);
+	        	})
+			},
+			convertArrayOfObjectsToCSV (args) {
+				let result, ctr, keys, columnDelimiter, lineDelimiter, data;
+
+		        data = args.data || null;
+		        if (data == null || !data.length) {
+		            return null;
+		        }
+		
+		        columnDelimiter = args.columnDelimiter || ',';
+		        lineDelimiter = args.lineDelimiter || '\n';
+		
+		        keys = Object.keys(data[0]);
+		
+		        result = '';
+		        result += keys.join(columnDelimiter);
+		        result += lineDelimiter;
+		
+		        data.forEach(function(item) {
+		            ctr = 0;
+		            keys.forEach(function(key) {
+		                if (ctr > 0) result += columnDelimiter;
+		
+		                result += item[key];
+		                ctr++;
+		            });
+		            result += lineDelimiter;
+		        });
+		
+		        return result;
+			},
+			downloadCSV (args) {
+				let data, filename, link;
+
+		        let csv = this.convertArrayOfObjectsToCSV({
+		            data: this.exportData
+		        });
+		        if (csv == null) return;
+		
+		        filename = args.filename || 'export.csv';
+		
+		        if (!csv.match(/^data:text\/csv/i)) {
+		            csv = 'data:text/csv;charset=utf-8,' + csv;
+		        }
+		        data = encodeURI(csv);
+		
+		        link = document.createElement('a');
+		        link.setAttribute('href', data);
+		        link.setAttribute('download', filename);
+		        link.click();
 			}
 		},
 		mounted () {
@@ -880,6 +1201,11 @@
 	}
 	.btn-group button.ivu-btn {
 		float: right;
+	}
+	.searchBox {
+		float: right;
+		width: 280px;
+		margin-right: 20px;
 	}
 	.page {
 		float: right;

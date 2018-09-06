@@ -7,7 +7,7 @@
 		            <Option value="nickName">用户昵称</Option>
 		            <Option value="transaction">transaction</Option>
 		        </Select>
-				<Button slot="append" icon="search" @click="search"></Button>
+				<Button slot="append" icon="md-search" @click="search"></Button>
 			</Input>
 		</ButtonGroup>
 		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>

@@ -1,7 +1,7 @@
 <template>
 	<div>
   	<!--<p><v-countup :start-value="startValue" :end-value="endValue" class="countUp"></v-countup></p>-->
-  	<froala :config="config" v-model="content"></froala>
+  	<!--<froala :config="config" v-model="content"></froala>-->
   </div>
 </template>
 

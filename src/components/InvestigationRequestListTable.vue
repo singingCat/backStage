@@ -7,7 +7,7 @@
 		            <Option value="nickName">分析师昵称</Option>
 		            <Option value="taskName">调研名称</Option>
 		        </Select>
-				<Button slot="append" icon="search" @click="search"></Button>
+				<Button slot="append" icon="md-search" @click="search"></Button>
 			</Input>
 		</ButtonGroup>
 		<Table border highlight-row :columns="columns" :data="data" :loading="loadingState" @on-current-change="changeRequest"></Table>
@@ -17,7 +17,7 @@
 		<div class="text-center" style="margin-top: 100px">接单列表</div>
 		<ButtonGroup size="small" class="btn-group">
 			<Input class="searchBox" size="small" v-model.trim="orderSearchContent" placeholder="要搜索的调研id" style="width: 200px;">
-				<Button slot="append" icon="search" @click="orderSearch"></Button>
+				<Button slot="append" icon="md-search" @click="orderSearch"></Button>
 			</Input>
 		</ButtonGroup>
 		<Table border highlight-row :columns="orderColumns" :data="orderData" :loading="orderLoadingState" @on-current-change="changeOrder"></Table>
@@ -179,17 +179,7 @@
                         title: '要求详情',
                         key: 'description',
                         width: 100,
-                        render: (h, params) => {
-	                        return h('Poptip', {
-	                            props: {
-	                                trigger: 'hover',
-	                                content: params.row.description,
-	                                placement: 'bottom'
-	                            }
-	                        }, [
-	                            h('Tag', params.row.description)
-	                        ]);
-	                    }
+                        tooltip: true
                     },
                     {
                     	title: '操作',
@@ -342,17 +332,7 @@
                     {
                         title: '报告描述',
                         key: 'content',
-                        render: (h, params) => {
-	                        return h('Poptip', {
-	                            props: {
-	                                trigger: 'hover',
-	                                content: params.row.content,
-	                                placement: 'bottom'
-	                            }
-	                        }, [
-	                            h('Tag', params.row.content)
-	                        ]);
-	                    }
+                        tooltip: true
                     },
                     {
                     	title: '操作',

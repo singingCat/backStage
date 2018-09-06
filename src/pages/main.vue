@@ -5,29 +5,37 @@
 	        	<Menu :open-names="[openNames]" :active-name="currentMenu" accordion theme="dark" width="auto" :class="menuitemClasses" @on-select="onChange">
 		            <Submenu name="coin">
 			            <template slot="title">
-			            	<Icon type="social-bitcoin"></Icon>
+			            	<Icon type="logo-bitcoin" />
 			            	<span>数币管理</span>
 			            </template>
 			            <MenuItem name="coinList">
-			            	<Icon type="information-circled"></Icon>
+			            	<Icon type="logo-usd" />
 			            	<span>数币信息</span>
 			            </MenuItem>
 		            </Submenu>
 		            <Submenu name="user">
 			            <template slot="title">
-			            	<Icon type="person"></Icon>
+			            	<Icon type="ios-people" />
 			            	<span>用户管理</span>
 			            </template>
 			            <MenuItem name="userList">
-			            	<Icon type="happy"></Icon>
+			            	<Icon type="md-contacts" />
 			            	<span>基本信息</span>
 			            </MenuItem>
 			            <MenuItem name="waitAuthentication">
 			            	<Icon type="ios-body"></Icon>
-			            	<span>等待认证</span>
+			            	<span>个人认证</span>
+			            </MenuItem>
+			            <MenuItem name="pannelAuthentication">
+			            	<Icon type="ios-body"></Icon>
+			            	<span>PN认证</span>
+			            </MenuItem>
+			            <MenuItem name="companyAuthentication">
+			            	<Icon type="ios-body"></Icon>
+			            	<span>企业认证</span>
 			            </MenuItem>
 			            <MenuItem name="systemPush">
-			            	<Icon type="ios-paperplane"></Icon>
+			            	<Icon type="ios-alert" />
 			            	<span>消息</span>
 			            </MenuItem>
 		            </Submenu>
@@ -37,70 +45,92 @@
 			            	<span>调研管理</span>
 			            </template>
 			            <MenuItem name="requestList">
-			            	<Icon type="ios-list"></Icon>
+			            	<Icon type="md-list" />
 			            	<span>调研列表</span>
 			            </MenuItem>
 			            <MenuItem name="questionnaireList">
-			            	<Icon type="android-clipboard"></Icon>
+			            	<Icon type="md-list" />
 			            	<span>问卷列表</span>
+			            </MenuItem>
+			            <MenuItem name="communityRating">
+			            	<Icon type="md-list" />
+			            	<span>社区评级</span>
 			            </MenuItem>
 		            </Submenu>
 		            <Submenu name="purse">
 			            <template slot="title">
-			            	<Icon type="social-yen"></Icon>
+			            	<Icon type="md-basket" />
 			            	<span>钱包管理</span>
 			            </template>
 			            <MenuItem name="tradeRecordList">
-			            	<Icon type="android-clipboard"></Icon>
+			            	<Icon type="md-rewind" />
 			            	<span>交易记录</span>
 			            </MenuItem>
 		            </Submenu>
 		            <Submenu name="exchange">
 			            <template slot="title">
-			            	<Icon type="social-yen"></Icon>
+			            	<Icon type="ios-globe" />
 			            	<span>兑换管理</span>
 			            </template>
 			            <MenuItem name="exchangeRatio">
-			            	<Icon type="android-clipboard"></Icon>
+			            	<Icon type="md-globe" />
 			            	<span>兑换比例</span>
 			            </MenuItem>
 		            </Submenu>
-		            <Submenu name="activity">
+		            <Submenu name="config">
 			            <template slot="title">
 			            	<Icon type="ios-game-controller-b"></Icon>
 			            	<span>配置管理</span>
 			            </template>
 			            <MenuItem name="VersionList">
-			            	<Icon type="android-clipboard"></Icon>
+			            	<Icon type="md-refresh-circle" />
 			            	<span>版本更新</span>
 			            </MenuItem>
 			            <MenuItem name="ConfigurationList">
-			            	<Icon type="android-clipboard"></Icon>
+			            	<Icon type="md-settings" />
 			            	<span>配置信息</span>
 			            </MenuItem>
+			            <MenuItem name="BannerList">
+			            	<Icon type="md-color-palette" />
+			            	<span>BN管理</span>
+			            </MenuItem>
 		            </Submenu>
-		            <Submenu name="activity">
+		            <Submenu name="news">
 			            <template slot="title">
-			            	<Icon type="ios-game-controller-b"></Icon>
+			            	<Icon type="logo-designernews" />
 			            	<span>新闻管理</span>
 			            </template>
 			            <MenuItem name="newsletterList">
-			            	<Icon type="android-clipboard"></Icon>
+			            	<Icon type="ios-book" />
 			            	<span>快讯</span>
 			            </MenuItem>
 			            <MenuItem name="dailyList">
-			            	<Icon type="android-clipboard"></Icon>
+			            	<Icon type="ios-book" />
 			            	<span>新闻</span>
 			            </MenuItem>
 		            </Submenu>
-		            <Submenu name="activity">
+		            <Submenu name="roni">
 			            <template slot="title">
-			            	<Icon type="ios-game-controller-b"></Icon>
+			            	<Icon type="md-pulse" />
 			            	<span>RONI管理</span>
 			            </template>
 			            <MenuItem name="roniList">
-			            	<Icon type="android-clipboard"></Icon>
+			            	<Icon type="md-list-box" />
 			            	<span>RONI列表</span>
+			            </MenuItem>
+		            </Submenu>
+		            <Submenu name="airdrop">
+		            	<template slot="title">
+			            	<Icon type="md-jet" />
+			            	<span>空投管理</span>
+			            </template>
+			            <MenuItem name="facebookList">
+			            	<Icon type="logo-facebook" />
+			            	<span>facebook</span>
+			            </MenuItem>
+			            <MenuItem name="twitterList">
+			            	<Icon type="logo-twitter" />
+			            	<span>twitter</span>
 			            </MenuItem>
 		            </Submenu>
 	        	</Menu>
@@ -127,8 +157,8 @@
 
 <script>
 	import UserInfo from '../components/UserInfo'
-	
 	let _ = require('lodash')
+	
 	const pathName = {
 		'coin': '数币管理',
 		'coinList': '数币信息',
@@ -153,7 +183,7 @@
 		'completedDetail': '答卷明细',
 		'questionList': '问题列表',
 		'airdrop': '空投管理',
-		'waitAuthentication': '等待认证',
+		'waitAuthentication': '个人认证',
 		'systemPush': '消息',
 		'systemPushCreate': '创建消息',
 		'VersionList': '版本更新',
@@ -165,7 +195,12 @@
 		'newsletterAdd': '新增快讯',
 		'newsletterEdit': '编辑快讯',
 		'dailyAdd': '新增新闻',
-		'dailyEdit': '编辑新闻'
+		'dailyEdit': '编辑新闻',
+		'communityRating': '社区评级',
+		'pannelAuthentication': 'pannel认证',
+		'companyAuthentication': '企业认证',
+		'facebookList': 'Facebook列表',
+		'twitterList': 'TwitterList列表'
 	}
 	
 	export default {

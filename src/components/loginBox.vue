@@ -9,15 +9,22 @@
 					<div class="form-con">
 						<Form ref="formValidate" :model="formValidate" :rules="ruleValidate">
 							<FormItem prop="email">
-					            <Input type="text" v-model="formValidate.email" placeholder="请输入邮箱">
-					                <Icon type="ivu-icon ivu-icon-person" slot="prepend" style="font-size: 16px"></Icon>
+					            <Input 
+					            	type="text" 
+					            	v-model="formValidate.email" 
+					            	placeholder="请输入邮箱">
+					                <Icon type="md-person" slot="prepend" style="font-size: 16px"></Icon>
 					            </Input>
 					        </FormItem>
 							<FormItem prop="password">
-					            <Input type="password" v-model="formValidate.password" placeholder="请输入密码">
-					                <Icon type="ivu-icon ivu-icon-locked" slot="prepend" style="font-size: 14px"></Icon>
+					            <Input 
+					            	type="password" 
+					            	v-model="formValidate.password" 
+					            	@keyup.enter.native="handleSubmit('formValidate')" 
+					            	placeholder="请输入密码">
+					                <Icon type="md-lock" slot="prepend" style="font-size: 16px"></Icon>
 					            </Input>
-					       </FormItem>
+					      </FormItem>
 							<FormItem>
 								<Button type="primary" @click="handleSubmit('formValidate')" long>登录</Button>
 							</FormItem>

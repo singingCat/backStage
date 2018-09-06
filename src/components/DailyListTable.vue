@@ -11,7 +11,7 @@
 		<ButtonGroup size="small" class="btn-group">
 			<Button type="primary" @click="add">新增</Button>
 			<Input class="searchBox" size="small" v-model.trim="searchContent" placeholder="要搜索的标题">
-				<Button slot="append" icon="search" @click="search"></Button>
+				<Button slot="append" icon="md-search" @click="search"></Button>
 			</Input>
 		</ButtonGroup>
 		<Table border :columns="columns" :data="data" :loading="loadingState"></Table>
@@ -61,6 +61,7 @@
                     {
                     	title: '标题',
                     	key: 'title',
+                    	tooltip: true,
                     	width: 120
                     },
                     {
@@ -80,27 +81,21 @@
                     },
                     {
                         title: '显示时间',
-                        key: '',
+                        key: 'time',
                         width: 150,
-                        render: (h, params) => {
-                        	return h('div', this.formatDate(params.row.time));
-                        }
+                        sortable: true
                     },
                     {
                         title: '创建时间',
-                        key: '',
+                        key: 'createdTime',
                         width: 150,
-                        render: (h, params) => {
-                        	return h('div', this.formatDate(params.row.createdTime));
-                        }
+                        sortable: true
                     },
                     {
                         title: '上线时间',
-                        key: '',
+                        key: 'onlineTime',
                         width: 150,
-                        render: (h, params) => {
-                        	return h('div', this.formatDate(params.row.onlineTime));
-                        }
+                        sortable: true
                     },
                     {
 	                    title: '状态',
@@ -135,7 +130,11 @@
                     	title: '创建人',
                     	width: 120,
                     	render: (h, params) => {
-                    		return h('div', params.row.user.nickName);
+                    		let nickName = '';
+                    		if (params.row.user) {
+                    			nickName = params.row.user.nickName;
+                    		}
+                    		return h('div', nickName);
                     	}
                     },
                     {
@@ -165,7 +164,7 @@
                     	}
                     },
                     {
-                    	title: '分享标题',
+                    	title: '微信分享标题',
                     	width: 120,
                     	render: (h, params) => {
                     		if (params.row.page) {
@@ -174,7 +173,7 @@
                     	}
                     },
                     {
-                    	title: '分享描述',
+                    	title: '微信分享描述',
                     	width: 120,
                     	render: (h, params) => {
                     		if (params.row.page) {
@@ -187,6 +186,15 @@
 		                        }, [
 		                            h('Tag', params.row.page.share.wechatFriendDescription)
 		                        ]);
+                    		}
+                    	}
+                    },
+                    {
+                    	title: '微博分享标题',
+                    	width: 120,
+                    	render: (h, params) => {
+                    		if (params.row.page) {
+                    			return h('div', params.row.page.share.weiboContent);
                     		}
                     	}
                     },
@@ -208,14 +216,14 @@
                                     },
                                     on: {
                                         click: () => {
-                                           
+                                           open(params.row.url);
                                         }
                                     }
                                 }, '预览'),
                     			h('Upload', {
                                     props: {
                                         ref: 'upload',
-                                        action: '/api/news/add/image',
+                                        action: 'news/add/image',
                                         'show-upload-list': false,
                                         'on-success': this.uploadSuccess,
                                         'on-error': this.uploadError,
@@ -239,7 +247,7 @@
                                 h('Upload', {
                                     props: {
                                         ref: 'upload',
-                                        action: '/api/news/add/image',
+                                        action: 'news/add/image',
                                         'show-upload-list': false,
                                         'on-success': this.uploadSuccess,
                                         'on-error': this.uploadError,
@@ -327,9 +335,9 @@
            		this.$axios.get('news/list?page='+page+'&pageSize=10&title=' + this.searchContent)
 				.then((response) => {
 					if (response.data.isSuccessful) {
-						console.log(response.data);
 						this.data = response.data.data.rows;
 						this.total = response.data.data.records;
+						this.handleData();	//直接在表格render排序sortable不起作用
 					} else {
 						this.$Notice.error({ title: response.data.message });
 					}
@@ -339,6 +347,13 @@
 	        		console.log(error);
 	        		this.loadingState = false;
 	        	})
+			},
+			handleData () {
+				this.data.forEach((item, index) => {
+					item.time = this.formatDate(item.time);
+					item.createdTime = this.formatDate(item.createdTime);
+					item.onlineTime = this.formatDate(item.onlineTime);
+				});
 			},
 			add () {
 				this.newsAddShow = true;
@@ -429,7 +444,7 @@
 					this.loadList(1);
 					this.$Notice.success({ title: '操作成功' });
 				} else {
-					this.$Notice.error({ title: response.data.message });
+					this.$Notice.error({ title: data.message });
 				}
 			},
 			uploadError (error) {

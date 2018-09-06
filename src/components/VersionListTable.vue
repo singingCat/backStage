@@ -113,32 +113,12 @@
                     {
                         title: '更新内容',
                         key: 'releaseNote',
-                        render: (h, params) => {
-	                        return h('Poptip', {
-	                            props: {
-	                                trigger: 'hover',
-	                                content: params.row.releaseNote,
-	                                placement: 'bottom'
-	                            }
-	                        }, [
-	                            h('Tag', params.row.releaseNote)
-	                        ]);
-	                    }
+                        tooltip: true
                     },
                     {
                         title: '下载地址',
                         key: 'downloadUrl',
-                        render: (h, params) => {
-	                        return h('Poptip', {
-	                            props: {
-	                                trigger: 'hover',
-	                                content: params.row.downloadUrl,
-	                                placement: 'bottom'
-	                            }
-	                        }, [
-	                            h('Tag', params.row.downloadUrl)
-	                        ]);
-	                    }
+                        tooltip: true
                     },
                     {
                         title: '上线时间',

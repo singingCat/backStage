@@ -247,9 +247,11 @@
                         width: 80
                     },
                     {
-                        title: '币Id',
-                        key: 'coinId',
-                        width: 70
+                        title: '币名称',
+                        width: 80,
+                        render: (h, params) => {
+                        	return h('div', params.row.coin.symbolName);
+                        }
                     },
                     {
 						title: '开始投票时间',
@@ -314,6 +316,7 @@
 				this.$axios.get('roni/list?page=' + page + '&pageSize=10&type=' + this.defaultRoniType + '&roniGenerateId=' + this.currentRoniGenId)
 				.then((response) => {
 					if (response.data.isSuccessful) {
+						console.log(response.data);
 						this.roniData = response.data.data.rows;
 						this.roniTotal = response.data.data.records;
 					} else {

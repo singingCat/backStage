@@ -70,9 +70,11 @@ export const appRouter = [
    			{ path: 'userList', title: '基本信息', name: 'userList', meta: { requireAuth: true }, component: () => import('@/pages/UserList.vue') },
    			{ path: 'userAdd', title: '新增用户', name: 'userAdd', meta: { requireAuth: true }, component: () => import('@/pages/UserEdit.vue') },
    			{ path: 'UserEdit/:id', title: '基本信息', name: 'userEdit', meta: { requireAuth: true }, component: () => import('@/pages/UserEdit.vue') },
-   			{ path: 'waitAuthentication', title: '等待认证', name: 'waitAuthentication', meta: { requireAuth: true }, component: () => import('@/pages/WaitAuthentication.vue') },
+   			{ path: 'waitAuthentication', title: '个人认证', name: 'waitAuthentication', meta: { requireAuth: true }, component: () => import('@/pages/WaitAuthentication.vue') },
    			{ path: 'systemPush', title: '系统推送', name: 'systemPush', meta: { requireAuth: true }, component: () => import('@/pages/SystemPush.vue') },
-   			{ path: 'systemPushCreate', title: '创建推送', name: 'systemPushCreate', meta: { requireAuth: true }, component: () => import('@/pages/SystemPushCreate.vue') }
+   			{ path: 'systemPushCreate', title: '创建推送', name: 'systemPushCreate', meta: { requireAuth: true }, component: () => import('@/pages/SystemPushCreate.vue') },
+   			{ path: 'pannelAuthentication', title: 'pannel认证', name: 'pannelAuthentication', meta: { requireAuth: true }, component: () => import('@/pages/PannelAuthentication.vue') },
+   			{ path: 'companyAuthentication', title: '企业认证', name: 'companyAuthentication', meta: { requireAuth: true }, component: () => import('@/pages/CompanyAuthentication.vue') }
    		]
    	},
    	{
@@ -86,7 +88,8 @@ export const appRouter = [
    			{ path: 'questionnaireList', title: '问卷管理', name: 'questionnaireList', meta: { requireAuth: true }, component: () => import('@/pages/QuestionnaireList.vue') },
    			{ path: 'completedList/:id', title: '已完成列表', name: 'completedList', meta: { requireAuth: true }, component: () => import('@/pages/CompletedList.vue') },
    			{ path: 'completedDetail/:uuid', title: '查看详情', name: 'completedDetail', meta: { requireAuth: true }, component: () => import('@/pages/CompletedDetail.vue') },
-   			{ path: 'questionShow/:uid', title: '查看问题', name: 'questionShow', meta: { requireAuth: true }, component: () => import('@/pages/QuestionShow.vue') }
+   			{ path: 'questionShow/:uid', title: '查看问题', name: 'questionShow', meta: { requireAuth: true }, component: () => import('@/pages/QuestionShow.vue') },
+   			{ path: 'communityRating', title: '社区评级', name: 'communityRating', meta: { requireAuth: true }, component: () => import('@/pages/CommunityRating.vue') }
    		]
    	},
    	{
@@ -111,11 +114,12 @@ export const appRouter = [
    	{
    		path: '/activity',
    		name: 'activity',
-   		title: '活动管理',
+   		title: '配置管理',
    		component: Main,
    		children: [
    			{ path: 'ConfigurationList', title: '配置列表', name: 'ConfigurationList', meta: { requireAuth: true }, component: () => import('@/pages/ConfigurationList.vue') },
-   			{ path: 'VersionList', title: '版本号列表', name: 'VersionList', meta: { requireAuth: true }, component: () => import('@/pages/VersionList.vue') }
+   			{ path: 'VersionList', title: '版本号列表', name: 'VersionList', meta: { requireAuth: true }, component: () => import('@/pages/VersionList.vue') },
+   			{ path: 'BannerList', title: 'banner列表', name: 'BannerList', meta: { requireAuth: true }, component: () => import('@/pages/BannerList.vue') }
    		]
    	},
    	{
@@ -139,6 +143,16 @@ export const appRouter = [
    		component: Main,
    		children: [
    			{ path: 'roniList', title: 'RONI列表', name: 'roniList', meta: { requireAuth: true }, component: () => import('@/pages/RoniList.vue') }
+   		]
+   	},
+   	{
+   		path: '/airdrop',
+   		name: 'airdrop',
+   		title: '空投管理',
+   		component: Main,
+   		children: [
+   			{ path: 'facebookList', title: 'Facebook列表', name: 'facebookList', meta: { requireAuth: true }, component: () => import('@/pages/FacebookList.vue') },
+   			{ path: 'twitterList', title: 'Twitter列表', name: 'twitterList', meta: { requireAuth: true }, component: () => import('@/pages/TwitterList.vue') }
    		]
    	}
 ]
